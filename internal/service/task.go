@@ -391,9 +391,9 @@ func afterExecJob(taskModel models.Task, taskResult TaskResult, taskLogId int64)
 // 执行依赖任务, 多个任务并发执行
 func execDependencyTask(taskModel models.Task, taskResult TaskResult) {
 	// 父任务才能执行子任务
-	if taskModel.Level != models.TaskLevelParent {
-		return
-	}
+	//if taskModel.Level != models.TaskLevelParent {
+	//	return
+	//}
 
 	// 是否存在子任务
 	dependencyTaskId := strings.TrimSpace(taskModel.DependencyTaskId)

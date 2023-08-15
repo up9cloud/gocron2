@@ -5,6 +5,7 @@ import NotFound from '../components/common/notFound'
 
 import TaskList from '../pages/task/list'
 import TaskEdit from '../pages/task/edit'
+import TaskDependency from '../pages/task/dependency'
 import TaskLog from '../pages/taskLog/list'
 
 import HostList from '../pages/host/list'
@@ -70,6 +71,14 @@ const router = new Router({
       path: '/task/log',
       name: 'task-log',
       component: TaskLog,
+      meta: {
+        noNeedAdmin: true
+      }
+    },
+    {
+      path: '/task/dependency',
+      name: 'task-dependency',
+      component: TaskDependency,
       meta: {
         noNeedAdmin: true
       }

@@ -9,6 +9,7 @@
       router>
       <el-menu-item index="/task">定时任务</el-menu-item>
       <el-menu-item index="/task/log">任务日志</el-menu-item>
+      <el-menu-item index="/task/dependency">任务依赖</el-menu-item>
     </el-menu>
   </el-aside>
 </template>
@@ -23,6 +24,8 @@ export default {
     currentRoute () {
       if (this.$route.path === '/task/log') {
         return '/task/log'
+      } else if (this.$route.path === '/task/dependency') {
+        return '/task/dependency'
       }
       return '/task'
     }
