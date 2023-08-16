@@ -289,7 +289,7 @@ export default {
       this.search()
     },
     search (callback = null) {
-      taskService.list(this.searchParams, (tasks, hosts) => {
+      taskService.dependencyList(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
         this.taskTotal = tasks.total
         this.hosts = hosts

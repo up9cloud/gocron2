@@ -14,6 +14,18 @@ export default {
     ], callback)
   },
 
+  dependencyList (query, callback) {
+    httpClient.batchGet([
+      {
+        uri: '/task/dependency',
+        params: query
+      },
+      {
+        uri: '/host/all'
+      }
+    ], callback)
+  },
+
   detail (id, callback) {
     httpClient.batchGet([
       {

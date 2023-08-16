@@ -72,6 +72,28 @@ func Index(ctx *macaron.Context) string {
 	})
 }
 
+func Dependency(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	queryParams := parseQueryParams(ctx)
+	total, err := taskModel.Total(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
+	tasks, err := taskModel.DependencyList(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
+	for i, item := range tasks {
+		tasks[i].NextRunTime = service.ServiceTask.NextRunTime(item)
+	}
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+		"data":  tasks,
+	})
+}
+
 // Detail 任务详情
 func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")

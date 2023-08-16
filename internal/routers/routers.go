@@ -85,6 +85,7 @@ func Register(m *macaron.Macaron) {
 		m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
 		m.Get("/:id", task.Detail)
 		m.Get("", task.Index)
+		m.Get("/dependency", task.Dependency)
 		m.Get("/log", tasklog.Index)
 		m.Post("/log/clear", tasklog.Clear)
 		m.Post("/log/stop", tasklog.Stop)

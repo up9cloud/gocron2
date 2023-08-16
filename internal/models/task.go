@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -63,6 +64,7 @@ type Task struct {
 	BaseModel        `json:"-" xorm:"-"`
 	Hosts            []TaskHostDetail `json:"hosts" xorm:"-"`
 	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"`
+	Children         []Task           `json:"children" xorm:"-"`
 }
 
 func taskHostTableName() []string {
@@ -208,6 +210,47 @@ func (task *Task) List(params CommonMap) ([]Task, error) {
 	return task.setHostsForTasks(list)
 }
 
+func (task *Task) DependencyList(params CommonMap) ([]Task, error) {
+	task.parsePageAndPageSize(params)
+	list := make([]Task, 0)
+	session := Db.Alias("t").Join("LEFT", taskHostTableName(), "t.id = th.task_id")
+	task.parseWhere(session, params)
+	session.And("t.level = ?", 1)
+	session.And("t.dependency_task_id > ?", 0)
+	err := session.GroupBy("t.id").Desc("t.id").Cols("t.*").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
+
+	if err != nil {
+		return nil, err
+	}
+
+	newList, _ := task.setChildrenForTask(list)
+	return task.setHostsForTasks(newList)
+}
+
+func (task *Task) setChildrenForTask(tasks []Task) ([]Task, error) {
+	var err error
+	for i, value := range tasks {
+		tasks[i].Children = task.setChildrenRecursion(value)
+	}
+	return tasks, err
+}
+
+func (task *Task) setChildrenRecursion(value Task) []Task {
+	tasks := make([]Task, 0)
+	if value.DependencyTaskId != "" {
+		dependencyTaskIds := strings.Split(value.DependencyTaskId, ",")
+		for _, taskId := range dependencyTaskIds {
+			taskIdInt, _ := strconv.Atoi(taskId)
+			dt, _ := task.Detail(taskIdInt)
+			if dt.DependencyTaskId != "" {
+				dt.Children = task.setChildrenRecursion(dt)
+			}
+			tasks = append(tasks, dt)
+		}
+	}
+	return tasks
+}
+
 // 获取依赖任务列表
 func (task *Task) GetDependencyTaskList(ids string) ([]Task, error) {
 	list := make([]Task, 0)
@@ -262,15 +305,15 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	}
 	protocol, ok := params["Protocol"]
 	if ok && protocol.(int) > 0 {
-		session.And("protocol = ?", protocol)
+		session.And("t.protocol = ?", protocol)
 	}
 	status, ok := params["Status"]
 	if ok && status.(int) > -1 {
-		session.And("status = ?", status)
+		session.And("t.status = ?", status)
 	}
 	command, ok := params["Command"]
 	if ok && command.(string) != "" {
-		session.And("command like  ?", "%"+command.(string)+"%")
+		session.And("t.command like  ?", "%"+command.(string)+"%")
 	}
 
 	tag, ok := params["Tag"]
