@@ -53,6 +53,7 @@
         </el-form-item>
       </el-row>
     </el-form>
+
     <el-row type="flex" justify="end">
       <el-col :span="2">
         <el-button type="primary" @click="toEdit(null)" v-if="this.$store.getters.user.isAdmin">新增</el-button>
@@ -61,125 +62,15 @@
         <el-button type="info" @click="refresh">刷新</el-button>
       </el-col>
     </el-row>
-    <el-pagination
-      background
-      layout="prev, pager, next, sizes, total"
-      :total="taskTotal"
-      :page-size="20"
-      @size-change="changePageSize"
-      @current-change="changePage"
-      @prev-click="changePage"
-      @next-click="changePage">
-    </el-pagination>
-    <el-table
+
+    <el-tree
       :data="tasks"
-      tooltip-effect="dark"
-      border
-      style="width: 100%">
-      <el-table-column type="expand">
-        <template slot-scope="scope">
-          <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="任务创建时间:">
-              {{scope.row.created | formatTime}} <br>
-            </el-form-item>
-            <el-form-item label="任务类型:">
-              {{scope.row.level | formatLevel}} <br>
-            </el-form-item>
-            <el-form-item label="单实例运行:">
-               {{scope.row.multi | formatMulti}} <br>
-            </el-form-item>
-            <el-form-item label="超时时间:">
-              {{scope.row.timeout | formatTimeout}} <br>
-            </el-form-item>
-            <el-form-item label="重试次数:">
-              {{scope.row.retry_times}} <br>
-            </el-form-item>
-            <el-form-item label="重试间隔:">
-              {{scope.row.retry_interval | formatRetryTimesInterval}}
-            </el-form-item> <br>
-            <el-form-item label="任务节点">
-              <div v-for="item in scope.row.hosts" :key="item.host_id">
-                {{item.alias}} - {{item.name}}:{{item.port}} <br>
-              </div>
-            </el-form-item> <br>
-            <el-form-item label="命令:" style="width: 100%">
-              {{scope.row.command}}
-            </el-form-item> <br>
-            <el-form-item label="备注" style="width: 100%">
-              {{scope.row.remark}}
-            </el-form-item>
-          </el-form>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="id"
-        label="任务ID">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="任务名称"
-      width="150">
-      </el-table-column>
-      <el-table-column
-        prop="tag"
-        label="标签">
-      </el-table-column>
-      <el-table-column
-        prop="spec"
-        label="cron表达式"
-      width="120">
-      </el-table-column>
-      <el-table-column label="下次执行时间" width="160">
-        <template slot-scope="scope">
-          {{scope.row.next_run_time | formatTime}}
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="protocol"
-        :formatter="formatProtocol"
-        label="执行方式">
-      </el-table-column>
-      <el-table-column
-        label="状态" v-if="this.isAdmin">
-          <template slot-scope="scope">
-            <el-switch
-              v-if="scope.row.level === 1"
-              v-model="scope.row.status"
-              :active-value="1"
-              :inactive-vlaue="0"
-              active-color="#13ce66"
-              @change="changeStatus(scope.row)"
-              inactive-color="#ff4949">
-            </el-switch>
-          </template>
-      </el-table-column>
-      <el-table-column label="状态" v-else>
-        <template slot-scope="scope">
-          <el-switch
-            v-if="scope.row.level === 1"
-            v-model="scope.row.status"
-            :active-value="1"
-            :inactive-vlaue="0"
-            active-color="#13ce66"
-            :disabled="true"
-            inactive-color="#ff4949">
-          </el-switch>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="220" v-if="this.isAdmin">
-        <template slot-scope="scope">
-          <el-row>
-            <el-button type="primary" @click="toEdit(scope.row)">编辑</el-button>
-            <el-button type="success" @click="runTask(scope.row)">手动执行</el-button>
-          </el-row>
-          <br>
-          <el-row>
-            <el-button type="info" @click="jumpToLog(scope.row)">查看日志</el-button>
-            <el-button type="danger" @click="remove(scope.row)">删除</el-button>
-          </el-row>
-        </template>
-      </el-table-column>
-    </el-table>
+      node-key="id"
+      default-expand-all
+      :expand-on-click-node="false"
+      :render-content="renderContent">
+    </el-tree>
+
   </el-main>
 </el-container>
 </template>
@@ -291,6 +182,7 @@ export default {
     search (callback = null) {
       taskService.dependencyList(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
+        console.log(tasks.data)
         this.taskTotal = tasks.total
         this.hosts = hosts
         if (callback) {
@@ -328,6 +220,16 @@ export default {
         path = `/task/edit/${item.id}`
       }
       this.$router.push(path)
+    },
+    renderContent(h, { node, data, store }) {
+      console.log(data)
+      return (
+        <span class="custom-tree-node">
+            <span>{data.name}</span>
+            <span>
+           11
+            </span>
+          </span>);
     }
   }
 }
