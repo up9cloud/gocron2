@@ -121,6 +121,19 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		return json.CommonFailure("任务名称已存在")
 	}
 
+	if form.DependencyTaskId != "" {
+		childrenIds := strings.Split(form.DependencyTaskId, ",")
+		for _, childrenId := range childrenIds {
+			intChildrenId, _ := strconv.Atoi(childrenId)
+			childrenUsed := taskModel.ChildrenExist(id,intChildrenId)
+			if childrenUsed {
+				return json.CommonFailure("子任务不能被重复使用")
+			}
+		}
+	}
+
+
+
 	if form.Protocol == models.TaskRPC && form.HostId == "" {
 		return json.CommonFailure("请选择主机名")
 	}

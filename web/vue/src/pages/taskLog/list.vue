@@ -34,6 +34,9 @@
       </el-form>
       <el-row type="flex" justify="end">
         <el-col :span="3">
+          <el-button type="success" v-if="searchParams.task_id > 0"  @click="runTask(searchParams.task_id)">手动执行</el-button>
+        </el-col>
+        <el-col :span="3">
           <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog">清空日志</el-button>
         </el-col>
         <el-col :span="2">
@@ -153,6 +156,7 @@
 <script>
 import taskSidebar from '../task/sidebar'
 import taskLogService from '../../api/taskLog'
+import taskService from "../../api/task";
 
 export default {
   name: 'task-log',
@@ -257,7 +261,15 @@ export default {
       this.search(() => {
         this.$message.success('刷新成功')
       })
-    }
+    },
+    runTask (taskId) {
+      this.$appConfirm(() => {
+        taskService.run(taskId, () => {
+          this.$message.success('任务已开始执行')
+          this.refresh()
+        })
+      }, true)
+    },
   }
 }
 </script>

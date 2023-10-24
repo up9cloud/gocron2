@@ -170,6 +170,15 @@ func (task *Task) NameExist(name string, id int) (bool, error) {
 	return count > 0, err
 }
 
+func (task *Task) ChildrenExist(id int, childrenId int) bool {
+	if id > 0 {
+		count, _ := Db.Where("id != ? and FIND_IN_SET(?, dependency_task_id )", id, childrenId).Count(task)
+		println(count)
+		return count > 0
+	}
+	return true
+}
+
 func (task *Task) GetStatus(id int) (Status, error) {
 	exist, err := Db.Id(id).Get(task)
 	if err != nil {

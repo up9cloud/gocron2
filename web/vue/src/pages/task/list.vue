@@ -116,12 +116,16 @@
       </el-table-column>
       <el-table-column
         prop="id"
-        label="任务ID">
+        label="任务ID" width="100">
+      </el-table-column>
+      <el-table-column prop="level" label="任务类型" width="80">
+        <template slot-scope="scope">
+          {{scope.row.level | formatLevel}}
+        </template>
       </el-table-column>
       <el-table-column
         prop="name"
-        label="任务名称"
-      width="150">
+        label="任务名称">
       </el-table-column>
       <el-table-column
         prop="tag"
@@ -138,12 +142,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="protocol"
-        :formatter="formatProtocol"
-        label="执行方式">
-      </el-table-column>
-      <el-table-column
-        label="状态" v-if="this.isAdmin">
+        label="状态" v-if="this.isAdmin" width="80">
           <template slot-scope="scope">
             <el-switch
               v-if="scope.row.level === 1"
@@ -156,7 +155,7 @@
             </el-switch>
           </template>
       </el-table-column>
-      <el-table-column label="状态" v-else>
+      <el-table-column label="状态" v-else width="80">
         <template slot-scope="scope">
           <el-switch
             v-if="scope.row.level === 1"
@@ -168,6 +167,11 @@
             inactive-color="#ff4949">
           </el-switch>
         </template>
+      </el-table-column>
+      <el-table-column
+        prop="protocol"
+        :formatter="formatProtocol"
+        label="执行方式" width="80">
       </el-table-column>
       <el-table-column label="操作" width="220" v-if="this.isAdmin">
         <template slot-scope="scope">
