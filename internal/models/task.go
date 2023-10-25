@@ -63,8 +63,9 @@ type Task struct {
 	Deleted          time.Time            `json:"deleted" xorm:"datetime deleted"`               // 删除时间
 	BaseModel        `json:"-" xorm:"-"`
 	Hosts            []TaskHostDetail `json:"hosts" xorm:"-"`
-	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"`
-	Children         []Task           `json:"children" xorm:"-"`
+	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"`  //下次运行时间
+	Children         []Task           `json:"children" xorm:"-"`       //子任务
+	LastRunInfo      TaskLog          `json:"last_run_info" xorm:"-"`  //最后执行日志信息
 }
 
 func taskHostTableName() []string {
@@ -159,6 +160,21 @@ func (task *Task) setHostsForTasks(tasks []Task) ([]Task, error) {
 	return tasks, err
 }
 
+func (task *Task) setLastRunInfo(tasks []Task) []Task {
+	taskLogModel := new(TaskLog)
+	for i, value := range tasks {
+		var params = CommonMap{}
+		params["TaskId"] = value.Id
+		params["PageSize"] = 1
+		params["Page"]=1
+		taskHostDetails, _ := taskLogModel.List(params)
+		if len(taskHostDetails) > 0 {
+			tasks[i].LastRunInfo = taskHostDetails[0]
+		}
+	}
+	return tasks
+}
+
 // 判断任务名称是否存在
 func (task *Task) NameExist(name string, id int) (bool, error) {
 	if id > 0 {
@@ -216,6 +232,7 @@ func (task *Task) List(params CommonMap) ([]Task, error) {
 		return nil, err
 	}
 
+	list = task.setLastRunInfo(list)
 	return task.setHostsForTasks(list)
 }
 
@@ -232,8 +249,9 @@ func (task *Task) DependencyList(params CommonMap) ([]Task, error) {
 		return nil, err
 	}
 
-	newList, _ := task.setChildrenForTask(list)
-	return task.setHostsForTasks(newList)
+	list, _ = task.setChildrenForTask(list)
+	list = task.setLastRunInfo(list)
+	return task.setHostsForTasks(list)
 }
 
 func (task *Task) setChildrenForTask(tasks []Task) ([]Task, error) {
@@ -257,6 +275,7 @@ func (task *Task) setChildrenRecursion(value Task) []Task {
 			tasks = append(tasks, dt)
 		}
 	}
+	tasks = task.setLastRunInfo(tasks)
 	return tasks
 }
 

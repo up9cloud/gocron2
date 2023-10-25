@@ -134,11 +134,25 @@
       <el-table-column
         prop="spec"
         label="cron表达式"
-      width="120">
+      width="150">
       </el-table-column>
-      <el-table-column label="下次执行时间" width="160">
+      <el-table-column label="下次执行时间" width="170">
         <template slot-scope="scope">
           {{scope.row.next_run_time | formatTime}}
+        </template>
+      </el-table-column>
+      <el-table-column label="上次时间" width="170">
+        <template slot-scope="scope">
+          {{scope.row.last_run_info.end_time | formatTime}}
+        </template>
+      </el-table-column>
+      <el-table-column label="上次结果" width="80">
+        <template slot-scope="scope">
+          <span v-if="scope.row.last_run_info.id === 0">-</span>
+          <span style="color:red" v-else-if="scope.row.last_run_info.status === 0">失败</span>
+          <span style="color:green" v-else-if="scope.row.last_run_info.status === 1">执行中</span>
+          <span v-else-if="scope.row.last_run_info.status === 2">成功</span>
+          <span style="color:#4499EE" v-else-if="scope.row.last_run_info.status === 3">取消</span>
         </template>
       </el-table-column>
       <el-table-column
