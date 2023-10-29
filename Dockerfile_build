@@ -1,0 +1,18 @@
+FROM golang:1.15-alpine
+
+RUN apk update \
+    && apk add --no-cache git ca-certificates make bash yarn nodejs
+
+RUN go env -w GO111MODULE=on && \
+    go env -w GOPROXY=https://goproxy.cn,direct
+
+ADD . /app/gocron
+
+WORKDIR /app/gocron
+
+RUN yarn config set ignore-engines true \
+    && make install-vue \
+    && make build-vue \
+    && make statik \
+    && CGO_ENABLED=0 make gocron \
+    && CGO_ENABLED=0 make node

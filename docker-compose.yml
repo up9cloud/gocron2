@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  gocron-build:
+    image: gocron:build
+    platform: 'linux/x86_64'
+    container_name: 'gocron-build'
+    command: "bash -c 'cp /app/gocron/bin/* /data'"
+    volumes:
+      - ./bin:/data
+    build:
+      context: ./
+      dockerfile: Dockerfile_build

@@ -6,11 +6,11 @@ RUN apk update \
 RUN go env -w GO111MODULE=on && \
     go env -w GOPROXY=https://goproxy.cn,direct
 
-WORKDIR /app
+ADD . /app/gocron
 
-RUN git clone https://github.com/ouqiang/gocron.git \
-    && cd gocron \
-    && yarn config set ignore-engines true \
+WORKDIR /app/gocron
+
+RUN yarn config set ignore-engines true \
     && make install-vue \
     && make build-vue \
     && make statik \
