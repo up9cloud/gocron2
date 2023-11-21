@@ -37,10 +37,27 @@
           <el-button type="success" v-if="searchParams.task_id > 0"  @click="runTask(searchParams.task_id)">手动执行</el-button>
         </el-col>
         <el-col :span="3">
-          <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog">清空日志</el-button>
+          <el-tooltip class="item" effect="dark" content="清空日志,重置日志主键ID" placement="top-start">
+            <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog" size="medium">清空日志</el-button>
+          </el-tooltip>
         </el-col>
+
+        <el-col :span="4">
+          <el-button-group v-if="this.$store.getters.user.isAdmin">
+            <el-tooltip class="item" effect="dark" content="删除1天前日志" placement="top-start">
+              <el-button type="warning" size="medium" @click="removeLogDay(1)">1天</el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="删除7天前日志" placement="top-start">
+              <el-button type="warning" size="medium" @click="removeLogDay(7)">7天</el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="删除1月前日志" placement="top-start">
+              <el-button type="warning" size="medium" @click="removeLog(1)">1月</el-button>
+            </el-tooltip>
+          </el-button-group>
+        </el-col>
+
         <el-col :span="2">
-          <el-button type="info" @click="refresh">刷新</el-button>
+          <el-button type="info" @click="refresh" size="medium">刷新</el-button>
         </el-col>
       </el-row>
       <el-pagination
@@ -156,7 +173,7 @@
 <script>
 import taskSidebar from '../task/sidebar'
 import taskLogService from '../../api/taskLog'
-import taskService from "../../api/task";
+import taskService from '../../api/task'
 
 export default {
   name: 'task-log',
@@ -247,6 +264,22 @@ export default {
         })
       })
     },
+    removeLog (month) {
+      this.$appConfirm(() => {
+        taskLogService.remove(month,() => {
+          this.searchParams.page = 1
+          this.search()
+        })
+      })
+    },
+    removeLogDay (day) {
+      this.$appConfirm(() => {
+        taskLogService.removeDay(day,() => {
+          this.searchParams.page = 1
+          this.search()
+        })
+      })
+    },
     stopTask (item) {
       taskLogService.stop(item.id, item.task_id, () => {
         this.search()
@@ -269,7 +302,7 @@ export default {
           this.refresh()
         })
       }, true)
-    },
+    }
   }
 }
 </script>

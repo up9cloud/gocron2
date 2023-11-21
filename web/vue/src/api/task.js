@@ -55,5 +55,9 @@ export default {
 
   run (id, callback) {
     httpClient.get(`/task/run/${id}`, {}, callback)
+  },
+
+  tagList(callback){
+    httpClient.get(`/task/tags`, {}, callback)
   }
 }

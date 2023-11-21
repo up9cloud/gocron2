@@ -108,6 +108,18 @@ func Detail(ctx *macaron.Context) string {
 	return jsonResp.Success(utils.SuccessContent, task)
 }
 
+// 标签列表
+func Tags(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	tagsList, err := taskModel.TagsList()
+	jsonResp := utils.JsonResponse{}
+	if err != nil {
+		logger.Errorf("编辑任务#获取任务Tags列表出错")
+		return jsonResp.Success(utils.SuccessContent, nil)
+	}
+	return jsonResp.Success(utils.SuccessContent, tagsList)
+}
+
 // 保存任务  todo 拆分为多个方法
 func Store(ctx *macaron.Context, form TaskForm) string {
 	json := utils.JsonResponse{}

@@ -11,7 +11,14 @@
           <el-input v-model.trim="searchParams.name"></el-input>
         </el-form-item>
         <el-form-item label="标签">
-          <el-input v-model.trim="searchParams.tag"></el-input>
+          <el-select v-model.trim="searchParams.tag" clearable filterable placeholder="请选择">
+            <el-option
+              v-for="item in tagList"
+              :key="item.tag_name"
+              :label="item.tag_name"
+              :value="item.tag_name">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="命令">
           <el-input v-model.trim="searchParams.command"></el-input>
@@ -215,6 +222,7 @@ export default {
     return {
       tasks: [],
       hosts: [],
+      tagList: [],
       taskTotal: 0,
       searchParams: {
         page_size: 20,
@@ -256,7 +264,7 @@ export default {
     if (hostId) {
       this.searchParams.host_id = hostId
     }
-
+    this.initTagList()
     this.search()
   },
   filters: {
@@ -318,6 +326,12 @@ export default {
         if (callback) {
           callback()
         }
+      })
+    },
+    initTagList(){
+      taskService.tagList((list) => {
+        this.tagList = list
+        console.log(list)
       })
     },
     runTask (item) {

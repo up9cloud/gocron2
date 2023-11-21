@@ -63,13 +63,22 @@ type Task struct {
 	Deleted          time.Time            `json:"deleted" xorm:"datetime deleted"`               // 删除时间
 	BaseModel        `json:"-" xorm:"-"`
 	Hosts            []TaskHostDetail `json:"hosts" xorm:"-"`
-	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"`  //下次运行时间
-	Children         []Task           `json:"children" xorm:"-"`       //子任务
-	LastRunInfo      TaskLog          `json:"last_run_info" xorm:"-"`  //最后执行日志信息
+	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"` //下次运行时间
+	Children         []Task           `json:"children" xorm:"-"`      //子任务
+	LastRunInfo      TaskLog          `json:"last_run_info" xorm:"-"` //最后执行日志信息
+}
+
+type Tags struct {
+	TagName string  `json:"tag_name" xorm:"tag_name"`
+	TagNum  int  `json:"tag_num" xorm:"tag_num"`
 }
 
 func taskHostTableName() []string {
 	return []string{TablePrefix + "task_host", "th"}
+}
+
+func taskTableName() []string {
+	return []string{TablePrefix + "task", "th"}
 }
 
 // 新增
@@ -108,6 +117,13 @@ func (task *Task) Disable(id int) (int64, error) {
 // 激活
 func (task *Task) Enable(id int) (int64, error) {
 	return task.Update(id, CommonMap{"status": Enabled})
+}
+
+// 获取任务Tags列表
+func (task *Task) TagsList() ([]Tags, error) {
+	list := make([]Tags, 0)
+	err := Db.Table(taskTableName()).Select("tag as tag_name, count(*) as tag_num").Where("status = ? ", Enabled).GroupBy("tag").Find(&list)
+	return list, err
 }
 
 // 获取所有激活任务
@@ -166,7 +182,7 @@ func (task *Task) setLastRunInfo(tasks []Task) []Task {
 		var params = CommonMap{}
 		params["TaskId"] = value.Id
 		params["PageSize"] = 1
-		params["Page"]=1
+		params["Page"] = 1
 		taskHostDetails, _ := taskLogModel.List(params)
 		if len(taskHostDetails) > 0 {
 			tasks[i].LastRunInfo = taskHostDetails[0]

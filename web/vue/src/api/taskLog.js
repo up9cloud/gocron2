@@ -11,5 +11,13 @@ export default {
 
   stop (id, taskId, callback) {
     httpClient.post('/task/log/stop', {id, task_id: taskId}, callback)
+  },
+
+  remove(month,callback){
+    httpClient.post(`/task/log/remove/${month}`,{},callback)
+  },
+
+  removeDay(day,callback){
+    httpClient.post(`/task/log/remove/day/${day}`,{},callback)
   }
 }

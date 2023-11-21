@@ -10,11 +10,6 @@
           <el-form-item label="任务名称">
             <el-input v-model.trim="searchParams.name"></el-input>
           </el-form-item>
-          <el-form-item label="标签">
-            <el-input v-model.trim="searchParams.tag"></el-input>
-          </el-form-item>
-        </el-row>
-        <el-row>
           <el-form-item label="执行方式">
             <el-select v-model.trim="searchParams.protocol">
               <el-option label="全部" value=""></el-option>
@@ -62,7 +57,7 @@
           <el-button type="info" @click="refresh">刷新</el-button>
         </el-col>
       </el-row>
-
+      <el-divider content-position="left">任务依赖关系</el-divider>
       <el-table
         :data="tasks"
         style="width: 100%;margin-bottom: 20px;"
@@ -267,7 +262,6 @@ export default {
     search(callback = null) {
       taskService.dependencyList(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
-        console.log(tasks.data)
         this.taskTotal = tasks.total
         this.hosts = hosts
         if (callback) {
