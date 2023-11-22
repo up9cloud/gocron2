@@ -140,10 +140,10 @@
         <el-table-column label="操作" width="220" v-if="this.isAdmin">
           <template slot-scope="scope">
             <el-row>
-              <el-col span="12">
+              <el-col :span="12">
                 <el-button type="success" @click="runTask(scope.row)" size="mini">手动执行</el-button>
               </el-col>
-              <el-col span="12">
+              <el-col :span="12">
                 <el-button type="info" @click="jumpToLog(scope.row)" size="mini">查看日志</el-button>
               </el-col>
             </el-row>

@@ -5,29 +5,30 @@
     <el-form :inline="true" >
       <el-row>
         <el-form-item label="任务ID">
-          <el-input v-model.trim="searchParams.id"></el-input>
+          <el-input v-model.trim="searchParams.id" clearable></el-input>
         </el-form-item>
         <el-form-item label="任务名称">
-          <el-input v-model.trim="searchParams.name"></el-input>
+          <el-input v-model.trim="searchParams.name" clearable></el-input>
         </el-form-item>
         <el-form-item label="标签">
           <el-select v-model.trim="searchParams.tag" clearable filterable placeholder="请选择">
+            <el-option label="全部" value="" clearable></el-option>
             <el-option
-              v-for="item in tagList"
+              v-for="item in tagList" v-if="item.tag_name!==''"
               :key="item.tag_name"
-              :label="item.tag_name"
+              :label="item.tag_name + '[' + item.tag_num + ']'"
               :value="item.tag_name">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="命令">
-          <el-input v-model.trim="searchParams.command"></el-input>
+          <el-input v-model.trim="searchParams.command" clearable></el-input>
         </el-form-item>
       </el-row>
       <el-row>
         <el-form-item label="执行方式">
-          <el-select v-model.trim="searchParams.protocol">
-            <el-option label="全部" value=""></el-option>
+          <el-select v-model.trim="searchParams.protocol" clearable>
+            <el-option label="全部" value="" clearable></el-option>
             <el-option
               v-for="item in protocolList"
               :key="item.value"
@@ -37,18 +38,18 @@
           </el-select>
         </el-form-item>
         <el-form-item label="任务节点">
-          <el-select v-model.trim="searchParams.host_id">
+          <el-select v-model.trim="searchParams.host_id" clearable placeholder="请选择">
             <el-option label="全部" value=""></el-option>
             <el-option
               v-for="item in hosts"
               :key="item.id"
-              :label="item.alias + ' - ' + item.name + ':' + item.port "
+              :label="item.alias + ' - ' + item.name + ':' + item.port"
               :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model.trim="searchParams.status">
+          <el-select v-model.trim="searchParams.status" clearable>
             <el-option label="全部" value=""></el-option>
             <el-option
               v-for="item in statusList"
@@ -227,13 +228,13 @@ export default {
       searchParams: {
         page_size: 20,
         page: 1,
-        id: '',
-        protocol: '',
-        name: '',
-        tag: '',
-        host_id: '',
-        status: '',
-        command: ''
+        id: sessionStorage.getItem('searchParams.id') || '',
+        protocol: sessionStorage.getItem('searchParams.protocol') || '',
+        name: sessionStorage.getItem('searchParams.name') || '',
+        tag: sessionStorage.getItem('searchParams.tag') || '',
+        host_id: Number(sessionStorage.getItem('searchParams.host_id')) || '',
+        status: sessionStorage.getItem('searchParams.status') || '',
+        command: sessionStorage.getItem('searchParams.command') || ''
       },
       isAdmin: this.$store.getters.user.isAdmin,
       protocolList: [
@@ -331,7 +332,6 @@ export default {
     initTagList(){
       taskService.tagList((list) => {
         this.tagList = list
-        console.log(list)
       })
     },
     runTask (item) {
@@ -364,6 +364,29 @@ export default {
         path = `/task/edit/${item.id}`
       }
       this.$router.push(path)
+    }
+  },
+  watch: {
+    'searchParams.protocol'(newVal) {
+      sessionStorage.setItem('searchParams.protocol', newVal)
+    },
+    'searchParams.id'(newVal) {
+      sessionStorage.setItem('searchParams.id', newVal)
+    },
+    'searchParams.name'(newVal) {
+      sessionStorage.setItem('searchParams.name', newVal)
+    },
+    'searchParams.tag'(newVal) {
+      sessionStorage.setItem('searchParams.tag', newVal)
+    },
+    'searchParams.host_id'(newVal) {
+      sessionStorage.setItem('searchParams.host_id', newVal)
+    },
+    'searchParams.status'(newVal) {
+      sessionStorage.setItem('searchParams.status', newVal)
+    },
+    'searchParams.command'(newVal) {
+      sessionStorage.setItem('searchParams.command', newVal)
     }
   }
 }
