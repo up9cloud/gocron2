@@ -130,7 +130,7 @@ package_file() {
         return
     fi
     for item in "${INCLUDE_FILE[@]}"; do
-            cp -r ../${item} $1
+        cp -r ../${item} $1
     done
 }
 

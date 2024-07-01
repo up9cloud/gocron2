@@ -9,11 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version: '^1.22' # The Go version to download (if necessary) and use.
-      - run: go version
+      - uses: actions/checkout@v4
       - run:
           make package-all
       - uses: ncipollo/release-action@v1
