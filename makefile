@@ -40,22 +40,22 @@ enable-race:
 
 # 打包: 生成当前系统的压缩包檔案
 .PHONY: package
-package: build-vue statik
+package: install-vue build-vue statik
 	bash ./package.sh
 
 # 打包: 生成所有系統的压缩包
 .PHONY: package-all
-package-all: build-vue statik
+package-all: install-vue build-vue statik
 	bash ./package.sh -p 'linux darwin windows' -a 'amd64 arm64'
+
+.PHONY: install-vue
+install-vue:
+	cd web/vue && npm install
 
 .PHONY: build-vue
 build-vue:
 	cd web/vue && npm run build
 	cp -r web/vue/dist/* web/public/
-
-.PHONY: install-vue
-install-vue:
-	cd web/vue && npm install
 
 .PHONY: run-vue
 run-vue:
