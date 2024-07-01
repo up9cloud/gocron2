@@ -107,6 +107,7 @@ init() {
 
     BUILD_DIR=${BINARY_NAME}-build
     mkdir -p ${BUILD_DIR}
+    mkdir -p ${PACKAGE_DIR}
 }
 
 # 编译
@@ -161,7 +162,6 @@ clean() {
     # if [[ -d ${PACKAGE_DIR} ]];then
     #     rm -rf ${PACKAGE_DIR}
     # fi
-    # mkdir -p ${PACKAGE_DIR}
 }
 
 # 运行

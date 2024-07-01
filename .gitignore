@@ -33,3 +33,5 @@ profile/*
 /packages
 /web/public/*
 /internal/statik
+/gocron2-build
+/gocron2-node-build
