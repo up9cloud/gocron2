@@ -15,9 +15,9 @@ import (
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 	_ "github.com/lib/pq"
-	"github.com/ouqiang/gocron/internal/modules/app"
-	"github.com/ouqiang/gocron/internal/modules/logger"
-	"github.com/ouqiang/gocron/internal/modules/setting"
+	"github.com/up9cloud/gocron2/internal/modules/app"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/setting"
 )
 
 type Status int8
@@ -100,7 +100,7 @@ func CreateDb() *xorm.Engine {
 		engine.Logger().SetLevel(core.LOG_DEBUG)
 	}
 
-	go keepDbAlived(engine)
+	go keepDbAlive(engine)
 
 	return engine
 }
@@ -176,7 +176,7 @@ func getTlsConfig(setting *setting.Setting) (*tls.Config, error) {
 		cfg.ServerName = sn
 		// Solve gcp invalid hostname in CN: https://github.com/golang/go/issues/40748#issuecomment-673599371
 		if strings.Contains(sn, ":") {
-			if cfg.InsecureSkipVerify != true {
+			if !cfg.InsecureSkipVerify {
 				cfg.InsecureSkipVerify = true
 				cfg.VerifyConnection = func(cs tls.ConnectionState) error {
 					commonName := cs.PeerCertificates[0].Subject.CommonName
@@ -199,7 +199,8 @@ func getTlsConfig(setting *setting.Setting) (*tls.Config, error) {
 	return cfg, nil
 }
 
-func keepDbAlived(engine *xorm.Engine) {
+func keepDbAlive(engine *xorm.Engine) {
+	//lint:ignore SA1015 this func only used when initializing
 	t := time.Tick(dbPingInterval)
 	var err error
 	for {

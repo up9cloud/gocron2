@@ -1,4 +1,4 @@
-// Command gocron-node
+// Command gocron2-node
 package main
 
 import (
@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ouqiang/gocron/internal/modules/rpc/auth"
-	"github.com/ouqiang/gocron/internal/modules/rpc/server"
-	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/up9cloud/gocron2/internal/modules/rpc/auth"
+	"github.com/up9cloud/gocron2/internal/modules/rpc/server"
+	"github.com/up9cloud/gocron2/internal/modules/utils"
 	"github.com/ouqiang/goutil"
 	log "github.com/sirupsen/logrus"
 )
@@ -27,13 +27,13 @@ func main() {
 	var keyFile string
 	var enableTLS bool
 	var logLevel string
-	flag.BoolVar(&allowRoot, "allow-root", false, "./gocron-node -allow-root")
-	flag.StringVar(&serverAddr, "s", "0.0.0.0:5921", "./gocron-node -s ip:port")
-	flag.BoolVar(&version, "v", false, "./gocron-node -v")
-	flag.BoolVar(&enableTLS, "enable-tls", false, "./gocron-node -enable-tls")
-	flag.StringVar(&CAFile, "ca-file", "", "./gocron-node -ca-file path")
-	flag.StringVar(&certFile, "cert-file", "", "./gocron-node -cert-file path")
-	flag.StringVar(&keyFile, "key-file", "", "./gocron-node -key-file path")
+	flag.BoolVar(&allowRoot, "allow-root", false, "./gocron2-node -allow-root")
+	flag.StringVar(&serverAddr, "s", "0.0.0.0:5921", "./gocron2-node -s ip:port")
+	flag.BoolVar(&version, "v", false, "./gocron2-node -v")
+	flag.BoolVar(&enableTLS, "enable-tls", false, "./gocron2-node -enable-tls")
+	flag.StringVar(&CAFile, "ca-file", "", "./gocron2-node -ca-file path")
+	flag.StringVar(&certFile, "cert-file", "", "./gocron2-node -cert-file path")
+	flag.StringVar(&keyFile, "key-file", "", "./gocron2-node -key-file path")
 	flag.StringVar(&logLevel, "log-level", "info", "-log-level error")
 	flag.Parse()
 	level, err := log.ParseLevel(logLevel)
@@ -68,7 +68,7 @@ func main() {
 	}
 
 	if runtime.GOOS != "windows" && os.Getuid() == 0 && !allowRoot {
-		log.Fatal("Do not run gocron-node as root user")
+		log.Fatal("Do not run gocron2-node as root user")
 		return
 	}
 

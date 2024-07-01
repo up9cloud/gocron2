@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mariadb:10
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: gocron2
+      MYSQL_USER: root
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 5920:5920
+      - 5921:5921
+    command:
+      - bash
+      - -c
+      - |
+        ./bin/gocron2 web -e dev &
+        ./bin/gocron2-node -allow-root &
+        wait -n

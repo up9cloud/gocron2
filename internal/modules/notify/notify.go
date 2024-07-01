@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"time"
 
-	"github.com/ouqiang/gocron/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
 )
 
 type Message map[string]interface{}

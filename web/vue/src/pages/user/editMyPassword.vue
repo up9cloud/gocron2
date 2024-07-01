@@ -2,12 +2,12 @@
   <el-container>
     <user-sidebar></user-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '/user' }">用户管理</el-breadcrumb-item>
           <el-breadcrumb-item>修改密码</el-breadcrumb-item>
       </el-breadcrumb>
-      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="100px">
+      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="auto">
         <el-row>
           <el-col :span="8">
             <el-form-item label="原密码" prop="old_password">
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import userSidebar from './sidebar'
+import userSidebar from './sidebar.vue'
 import userService from '../../api/user'
 export default {
   name: 'user-edit-my-password',

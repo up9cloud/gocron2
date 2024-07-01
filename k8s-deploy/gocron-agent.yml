@@ -1,26 +1,26 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
-  name: gocron-agent
+  name: gocron2-agent
   namespace: kube-system
 spec:
   selector:
     matchLabels:
-      daemon: gocron-agent
+      daemon: gocron2-agent
   template:
     metadata:
       labels:
-        daemon: gocron-agent
-      name: gocron-agent
+        daemon: gocron2-agent
+      name: gocron2-agent
     spec:
       containers:
-      - name: gocron-agent
+      - name: gocron2-agent
         image: crontab-agent:0.5
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5921
           hostPort: 5921
-          name: gocron-agent
+          name: gocron2-agent
           protocol: TCP
         resources: {}
         terminationMessagePath: /dev/termination-log

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/go-gomail/gomail"
-	"github.com/ouqiang/gocron/internal/models"
-	"github.com/ouqiang/gocron/internal/modules/logger"
-	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/up9cloud/gocron2/internal/models"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/utils"
 )
 
 // @author qiang.ou<qingqianludao@gmail.com>
@@ -52,7 +52,7 @@ func (mail *Mail) send(mailSetting models.Mail, toUsers []string, msg Message) {
 	gomailMessage := gomail.NewMessage()
 	gomailMessage.SetHeader("From", mailSetting.User)
 	gomailMessage.SetHeader("To", toUsers...)
-	gomailMessage.SetHeader("Subject", "gocron-定时任务通知")
+	gomailMessage.SetHeader("Subject", "gocron2-定时任务通知")
 	gomailMessage.SetBody("text/html", body)
 	mailer := gomail.NewDialer(mailSetting.Host, mailSetting.Port,
 		mailSetting.User, mailSetting.Password)

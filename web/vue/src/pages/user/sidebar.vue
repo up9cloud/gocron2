@@ -8,8 +8,8 @@
       active-text-color="#ffd04b"
       router>
       <el-menu-item index="/user">
-        <i class="el-icon-news"></i>
-        <span slot="title">用户列表</span>
+        <el-icon><Notification /></el-icon>
+        <span>用户列表</span>
       </el-menu-item>
     </el-menu>
   </el-aside>

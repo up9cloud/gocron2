@@ -2,13 +2,13 @@
   <el-container>
     <system-sidebar></system-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/system' }">系统管理</el-breadcrumb-item>
         <el-breadcrumb-item>通知配置</el-breadcrumb-item>
       </el-breadcrumb>
       <notification-tab></notification-tab>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="150px" style="width: 800px;">
+      <el-form ref="form" :model="form" :rules="formRules" label-width="auto" style="max-width: 800px;">
         <h3>邮件服务器配置</h3>
         <el-row>
           <el-col :span="12">
@@ -34,29 +34,26 @@
             </el-form-item>
           </el-col>
         </el-row>
-
         <el-form-item label="模板" prop="template">
-          <span slot="label">
+          <template #label>
             模板
             <el-tooltip placement="top">
-              <div slot="content">
+              <template #content>
                 通知模板支持html
-              </div>
-              <i class="el-icon-question"></i>
+              </template>
+              <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
-          </span>
+          </template>
           <el-input
             type="textarea"
-            :rows="6"
-            placeholder=""
+            :rows="10"
             v-model="form.template">
           </el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submit()">保存</el-button>
         </el-form-item>
-        <br>
-        <h3>通知用户 &nbsp;&nbsp;&nbsp;<el-button type="primary" size="mini" icon="el-icon-plus" plain @click="createUser"></el-button></h3>
+        <h3>通知用户 &nbsp;&nbsp;&nbsp;<el-button type="primary" size="small" icon="Plus" plain @click="createUser"></el-button></h3>
         <el-tag
           v-for="item in receivers"
           :key="item.email"
@@ -65,29 +62,26 @@
           {{item.username}} - {{item.email}}
         </el-tag>
       </el-form>
-      <el-dialog
-        title=""
-        :visible.sync="dialogVisible"
-        width="30%">
-        <el-form :model="form">
+      <el-dialog v-model="dialogVisible" width="30%">
+        <el-form :model="form" label-width="auto">
           <el-form-item label="用户名" >
             <el-input v-model.trim="username"></el-input>
           </el-form-item>
           <el-form-item label="邮箱地址" >
             <el-input v-model.trim="email"></el-input>
           </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="saveUser">确 定</el-button>
-          </el-form-item>
         </el-form>
+        <template #footer>
+          <el-button type="primary" @click="saveUser">确定</el-button>
+        </template>
       </el-dialog>
     </el-main>
   </el-container>
 </template>
 
 <script>
-import systemSidebar from '../sidebar'
-import notificationTab from './tab'
+import systemSidebar from '../sidebar.vue'
+import notificationTab from './tab.vue'
 import notificationService from '../../../api/notification'
 export default {
   name: 'notification-email',

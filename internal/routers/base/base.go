@@ -1,7 +1,7 @@
 package base
 
 import (
-	"github.com/ouqiang/gocron/internal/models"
+	"github.com/up9cloud/gocron2/internal/models"
 	"gopkg.in/macaron.v1"
 )
 

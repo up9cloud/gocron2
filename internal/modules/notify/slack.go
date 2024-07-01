@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ouqiang/gocron/internal/models"
-	"github.com/ouqiang/gocron/internal/modules/httpclient"
-	"github.com/ouqiang/gocron/internal/modules/logger"
-	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/up9cloud/gocron2/internal/models"
+	"github.com/up9cloud/gocron2/internal/modules/httpclient"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/utils"
 )
 
 type Slack struct{}
@@ -79,5 +79,5 @@ func (slack *Slack) format(content string, channel string) string {
 	replaceChars := []string{"&amp;", "&lt;", "&gt;"}
 	content = utils.ReplaceStrings(content, specialChars, replaceChars)
 
-	return fmt.Sprintf(`{"text":"%s","username":"gocron", "channel":"%s"}`, content, channel)
+	return fmt.Sprintf(`{"text":"%s","username":"gocron2", "channel":"%s"}`, content, channel)
 }

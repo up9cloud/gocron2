@@ -5,11 +5,10 @@
         ref="form"
         :model="form"
         :rules="formRules"
-        label-width="100px"
-        style="width: 700px"
+        style="max-width: 700px"
       >
         <h3>数据库配置</h3>
-        <el-form-item label="数据库选择" prop="db_type">
+        <el-form-item label="数据库选择" prop="db_type" label-width="auto">
           <el-select v-model.trim="form.db_type" @change="update_port">
             <el-option
               v-for="item in dbList"
@@ -154,16 +153,16 @@ export default {
         db_type: 'mysql',
         db_host: '127.0.0.1',
         db_port: 3306,
-        db_username: '',
+        db_username: 'root',
         db_password: '',
-        db_name: '',
+        db_name: 'gocron2',
         db_table_prefix: '',
         db_sslmode: '',
         db_ssl_ca_file: '',
         db_ssl_cert_file: '',
         db_ssl_key_file: '',
         db_ssl_server_name: '',
-        admin_username: '',
+        admin_username: 'admin',
         admin_password: '',
         confirm_admin_password: '',
         admin_email: ''
@@ -185,7 +184,7 @@ export default {
           { required: true, message: '请输入数据库用户名', trigger: 'blur' }
         ],
         db_password: [
-          { required: true, message: '请输入数据库密码', trigger: 'blur' }
+          { required: false, message: '请输入数据库密码', trigger: 'blur' }
         ],
         db_name: [
           { required: true, message: '请输入数据库名称', trigger: 'blur' }

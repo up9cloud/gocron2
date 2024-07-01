@@ -44,6 +44,10 @@ export default {
   body {
     margin:0;
   }
+  .el-switch {
+    --el-switch-on-color: #13ce66;
+    --el-switch-off-color: #ff4949
+  }
   .el-header {
     padding:0;
     margin:0;

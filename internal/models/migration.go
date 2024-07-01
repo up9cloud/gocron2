@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-xorm/xorm"
-	"github.com/ouqiang/gocron/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
 )
 
 type Migration struct{}
@@ -43,7 +43,15 @@ func (migration *Migration) Upgrade(oldVersionId int) {
 		return
 	}
 
-	versionIds := []int{110, 122, 130, 140, 150, 155}
+	versionIds := []int{
+		110,
+		122,
+		130,
+		140,
+		150,
+		155,
+		162,
+	}
 	upgradeFuncs := []func(*xorm.Session) error{
 		migration.upgradeFor110,
 		migration.upgradeFor122,
@@ -51,6 +59,7 @@ func (migration *Migration) Upgrade(oldVersionId int) {
 		migration.upgradeFor140,
 		migration.upgradeFor150,
 		migration.upgradeFor155,
+		migration.upgradeFor162,
 	}
 
 	startIndex := -1
@@ -246,6 +255,18 @@ func (migration *Migration) upgradeFor155(session *xorm.Session) error {
 	_, err := session.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN updated datetime DEFAULT CURRENT_TIMESTAMP NOT NULL, ADD COLUMN creater int NOT NULL DEFAULT 0, ADD COLUMN updater int NOT NULL DEFAULT 0", tableName))
 
 	logger.Info("已升级到v1.5.5\n")
+
+	return err
+}
+
+func (migration *Migration) upgradeFor162(session *xorm.Session) error {
+	logger.Info("开始升级到v1.6.2")
+
+	tableName := TablePrefix + "task"
+	// task表增加 updated, creater updater 字段
+	_, err := session.Exec(fmt.Sprintf("ALTER TABLE %s CHANGE COLUMN creater creator int NOT NULL DEFAULT 0, ADD COLUMN updater int NOT NULL DEFAULT 0", tableName))
+
+	logger.Info("已升级到v1.6.2\n")
 
 	return err
 }

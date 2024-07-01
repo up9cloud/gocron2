@@ -8,8 +8,8 @@
       active-text-color="#ffd04b"
       router>
       <el-menu-item index="/host">
-        <i class="el-icon-share"></i>
-        <span slot="title">节点列表</span>
+        <el-icon><Share /></el-icon>
+        <span>节点列表</span>
       </el-menu-item>
     </el-menu>
   </el-aside>

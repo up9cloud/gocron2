@@ -11,25 +11,25 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/toolbox"
-	"github.com/ouqiang/gocron/internal/modules/app"
-	"github.com/ouqiang/gocron/internal/modules/logger"
-	"github.com/ouqiang/gocron/internal/modules/utils"
-	"github.com/ouqiang/gocron/internal/routers/host"
-	"github.com/ouqiang/gocron/internal/routers/install"
-	"github.com/ouqiang/gocron/internal/routers/loginlog"
-	"github.com/ouqiang/gocron/internal/routers/manage"
-	"github.com/ouqiang/gocron/internal/routers/task"
-	"github.com/ouqiang/gocron/internal/routers/tasklog"
-	"github.com/ouqiang/gocron/internal/routers/user"
+	"github.com/up9cloud/gocron2/internal/modules/app"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/utils"
+	"github.com/up9cloud/gocron2/internal/routers/host"
+	"github.com/up9cloud/gocron2/internal/routers/install"
+	"github.com/up9cloud/gocron2/internal/routers/loginlog"
+	"github.com/up9cloud/gocron2/internal/routers/manage"
+	"github.com/up9cloud/gocron2/internal/routers/task"
+	"github.com/up9cloud/gocron2/internal/routers/tasklog"
+	"github.com/up9cloud/gocron2/internal/routers/user"
 	"github.com/rakyll/statik/fs"
 	"gopkg.in/macaron.v1"
 
-	_ "github.com/ouqiang/gocron/internal/statik"
+	_ "github.com/up9cloud/gocron2/internal/statik"
 )
 
 const (
 	urlPrefix = "/api"
-	staticDir = "public"
+	staticDir = "assets"
 )
 
 var statikFS http.FileSystem
@@ -54,9 +54,25 @@ func Register(m *macaron.Macaron) {
 			ctx.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 		io.Copy(ctx.Resp, file)
-
+	})
+	m.Get("/favicon.ico", func(ctx *macaron.Context) {
+		file, err := statikFS.Open("/favicon.ico")
+		if err != nil {
+			logger.Errorf("读取首页文件失败: %s", err)
+			ctx.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		io.Copy(ctx.Resp, file)
+	})
+	m.Get("/robots.txt", func(ctx *macaron.Context) {
+		file, err := statikFS.Open("/robots.txt")
+		if err != nil {
+			logger.Errorf("读取首页文件失败: %s", err)
+			ctx.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		io.Copy(ctx.Resp, file)
 	})
 	// 系统安装
 	m.Group("/install", func() {
@@ -155,9 +171,9 @@ func RegisterMiddleware(m *macaron.Macaron) {
 	}
 	m.Use(
 		macaron.Static(
-			"",
+			staticDir,
+			// https://pkg.go.dev/gopkg.in/macaron.v1?utm_source=godoc#StaticOptions
 			macaron.StaticOptions{
-				Prefix:     staticDir,
 				FileSystem: statikFS,
 			},
 		),
@@ -188,7 +204,7 @@ func checkAppInstall(ctx *macaron.Context) {
 	ctx.Write([]byte(data))
 }
 
-// IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
+// IP验证, 通过反向代理访问gocron2，需设置Header X-Real-IP才能获取到客户端真实IP
 func ipAuth(ctx *macaron.Context) {
 	if !app.Installed {
 		return

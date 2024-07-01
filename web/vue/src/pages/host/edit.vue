@@ -2,12 +2,12 @@
   <el-container>
     <host-sidebar></host-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '/host' }">任务节点</el-breadcrumb-item>
           <el-breadcrumb-item>编辑</el-breadcrumb-item>
       </el-breadcrumb>
-      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="100px">
+      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="auto">
         <el-row>
           <el-col :span="8">
             <el-input v-model="form.id" type="hidden"></el-input>
@@ -24,7 +24,6 @@
               <el-input
                 type="textarea"
                 :rows="5"
-                size="medium"
                 width="100"
                 v-model="form.remark">
               </el-input>
@@ -41,7 +40,7 @@
 </template>
 
 <script>
-import hostSidebar from './sidebar'
+import hostSidebar from './sidebar.vue'
 import hostService from '../../api/host'
 export default {
   name: 'edit',

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-tabs v-model="activeName" @tab-click="changeTab">
+    <el-tabs v-model="activeName" @tab-change="changeTab">
       <el-tab-pane label="邮件" name="email"></el-tab-pane>
       <el-tab-pane label="Slack" name="slack"></el-tab-pane>
       <el-tab-pane label="Webhook" name="webhook"></el-tab-pane>
@@ -34,8 +34,8 @@ export default {
     this.activeName = segments[3]
   },
   methods: {
-    changeTab (item) {
-      this.$router.push(`/system/notification/${item.name}`)
+    changeTab (name) {
+      this.$router.push(`/system/notification/${name}`)
     }
   }
 }

@@ -1,21 +1,29 @@
-# gocron
+# gocron2
 
-> 定时任务管理系统
+This template should help get you started developing with Vue 3 in Vite.
 
-## Build Setup
+## Recommended IDE Setup
 
-``` bash
-# install dependencies
-yarn install
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
 
-# serve with hot reload at localhost:8080
-yarn run dev
+## Customize configuration
 
-# build for production with minification
-yarn run build
+See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-# build for production and view the bundle analyzer report
-yarn run build --report
+## Project Setup
+
+```sh
+npm install
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Compile and Minify for Production
+
+```sh
+npm run build
+```

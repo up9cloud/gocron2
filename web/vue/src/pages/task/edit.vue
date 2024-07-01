@@ -2,33 +2,33 @@
   <el-container>
     <task-sidebar></task-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/task' }">任务管理</el-breadcrumb-item>
         <el-breadcrumb-item>编辑</el-breadcrumb-item>
      </el-breadcrumb>
-      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="180px">
+      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="auto">
         <el-input v-model="form.id" type="hidden"></el-input>
         <el-row>
-          <el-col :span="15">
+          <el-col :span="16">
             <el-form-item label="任务名称" prop="name">
               <el-input v-model.trim="form.name"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="5">
+          <el-col :span="8">
             <el-form-item label="任务类型">
-              <span slot="label">
+              <template #label>
                 任务类型
                 <el-tooltip placement="top">
-                  <div slot="content">
+                  <template #content>
                     主任务可以配置多个子任务,
                     当主任务执行完成后，自动执行子任务，任务类型新增后不能变更
-                  </div>
-                  <i class="el-icon-question"></i>
+                  </template>
+                  <el-icon><QuestionFilled /></el-icon>
                 </el-tooltip>
-              </span>
+              </template>
               <el-select v-model.trim="form.level" :disabled="form.id !== ''">
                 <el-option
                   v-for="item in levelList"
@@ -40,18 +40,20 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="5" v-if="form.level === 1">
+        </el-row>
+        <el-row>
+          <el-col :span="8" v-if="form.level === 1">
             <el-form-item label="依赖关系">
-              <span slot="label">
+              <template #label>
                 依赖关系
                 <el-tooltip placement="top">
-                  <div slot="content">
+                  <template #content>
                     强依赖: 主任务执行成功，才会运行子任务<br />
                     弱依赖: 无论主任务执行是否成功，都会运行子任务
-                  </div>
-                  <i class="el-icon-question"></i>
+                  </template>
+                  <el-icon><QuestionFilled /></el-icon>
                 </el-tooltip>
-              </span>
+              </template>
               <el-select v-model.trim="form.dependency_status">
                 <el-option
                   v-for="item in dependencyStatusList"
@@ -63,7 +65,9 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="5">
+        </el-row>
+        <el-row>
+          <el-col :span="16">
             <el-form-item label="标签">
               <el-input
                 v-model.trim="form.tag"
@@ -73,7 +77,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="15">
+          <el-col :span="16">
             <el-form-item label="子任务ID" v-if="form.level === 1">
               <el-input
                 v-model.trim="form.dependency_task_id"
@@ -82,28 +86,31 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="15" style="margin-left: 180px;">
-            <i class="el-icon-time" style="color: #909399;"></i>
-            <el-button
-              style="color: #909399;"
-              class="box-shadow-not"
-              type="text"
-              v-for="(item, index) in specOptions"
-              :key="index"
-              @click="specSelect(item.value)"
-              >{{ item.label }}</el-button
-            >
-          </el-col>
-        </el-row>
         <el-row v-if="form.level === 1">
-          <el-col :span="15">
+          <el-col :span="16">
             <el-form-item label="crontab表达式" prop="spec">
               <el-input
                 v-model.trim="form.spec"
                 placeholder="秒 分 时 天 月 周"
               ></el-input>
             </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-icon color="#909399"><Clock /></el-icon>
+            <template v-for="(item, index) in specOptions":key="index">
+              <el-button
+                size="small"
+                style="color: #909399;"
+                class="box-shadow-not"
+                @click="specSelect(item.value)"
+              >{{ item.label }}</el-button>
+            </template>
+            <el-tooltip placement="right">
+              <template #content>
+                https://pkg.go.dev/github.com/robfig/cron#hdr-Predefined_schedules
+              </template>
+              <el-icon><QuestionFilled /></el-icon>
+            </el-tooltip>
           </el-col>
         </el-row>
         <el-row>
@@ -158,17 +165,17 @@
         <el-row>
           <el-col :span="8">
             <el-form-item label="单实例运行">
-              <span slot="label">
+              <template #label>
                 单实例运行
                 <el-tooltip placement="top">
-                  <div slot="content">
+                  <template #content>
                     单实例运行,
                     前次任务未执行完成，下次任务调度时间到了是否要执行,
                     即是否允许多进程执行同一任务
-                  </div>
-                  <i class="el-icon-question"></i>
+                  </template>
+                  <el-icon><QuestionFilled /></el-icon>
                 </el-tooltip>
-              </span>
+              </template>
               <el-select v-model.trim="form.multi">
                 <el-option
                   v-for="item in runStatusList"
@@ -187,7 +194,6 @@
               <el-input
                 type="textarea"
                 :rows="5"
-                size="medium"
                 width="100"
                 :placeholder="commandPlaceholder"
                 v-model="form.command"
@@ -199,15 +205,15 @@
         <el-row>
           <el-col :span="15">
             <el-form-item label="任务超时时间" prop="timeout">
-              <span slot="label">
+              <template #label>
                 任务超时时间
                 <el-tooltip placement="top">
-                  <div slot="content">
+                  <template #content>
                     任务执行超时强制结束, 取值0-86400(秒), 默认0, 不限制
-                  </div>
-                  <i class="el-icon-question"></i>
+                  </template>
+                  <el-icon><QuestionFilled /></el-icon>
                 </el-tooltip>
-              </span>
+              </template>
               <el-input v-model.number.trim="form.timeout"></el-input>
             </el-form-item>
           </el-col>
@@ -236,7 +242,7 @@
               <el-switch
                 v-model="form.status"
                 :active-value="1"
-                :inactive-vlaue="0"
+                :inactive-value="0"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
               >
@@ -334,7 +340,6 @@
               <el-input
                 type="textarea"
                 :rows="3"
-                size="medium"
                 width="100"
                 v-model="form.remark"
               >
@@ -352,7 +357,7 @@
 </template>
 
 <script>
-import taskSidebar from './sidebar'
+import taskSidebar from './sidebar.vue'
 import taskService from '../../api/task'
 import notificationService from '../../api/notification'
 
@@ -537,6 +542,10 @@ export default {
         {
           value: '0 0 0 1 * *',
           label: '每月第1天'
+        },
+        {
+          value: '@every 8h',
+          label: '每間隔8小時'
         }
       ]
     }

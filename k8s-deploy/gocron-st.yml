@@ -5,44 +5,44 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gocron
+  name: gocron2
   labels:
-    app: gocron
+    app: gocron2
 spec:
   ports:
   - port: 5920
-    name: gocron
+    name: gocron2
   type: NodePort
   selector:
-    app: gocron
+    app: gocron2
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
-  name: gocron
+  name: gocron2
 spec:
-  serviceName: "gocron"
+  serviceName: "gocron2"
   replicas: 1
   template:
     metadata:
       labels:
-        app: gocron
+        app: gocron2
     spec:
       securityContext:
         fsGroup: 1000
       terminationGracePeriodSeconds: 10
       containers:
-      - name: gocron
-        image: ouqg/gocron:latest
+      - name: gocron2
+        image: sstc/gocron2:latest
         ports:
         - containerPort: 5920
-          name: gocron
+          name: gocron2
         volumeMounts:
-        - name: gocron-vol
+        - name: gocron2-vol
           mountPath: /app/conf
   volumeClaimTemplates:
   - metadata:
-      name: gocron-vol
+      name: gocron2-vol
     spec:
       storageClassName: rbd
       accessModes: [ "ReadWriteOnce" ]

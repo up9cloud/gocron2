@@ -1,37 +1,35 @@
-FROM golang:1.15-alpine as builder
+FROM golang:1.22-alpine as builder
 
-RUN apk update \
-    && apk add --no-cache git ca-certificates make bash yarn nodejs
-
-RUN go env -w GO111MODULE=on && \
-    go env -w GOPROXY=https://goproxy.cn,direct
-
-WORKDIR /app
-
-RUN git clone https://github.com/ouqiang/gocron.git \
-    && cd gocron \
-    && yarn config set ignore-engines true \
-    && make install-vue \
-    && make build-vue \
-    && make statik \
-    && CGO_ENABLED=0 make gocron
-
-FROM alpine:3.12
-
-RUN apk add --no-cache ca-certificates tzdata \
-    && addgroup -S app \
-    && adduser -S -g app app
-
-RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN set -ex; \
+    apk update; \
+    apk add --no-cache \
+      make \
+      bash \
+      nodejs \
+      npm
 
 WORKDIR /app
+COPY . .
 
-COPY --from=builder /app/gocron/bin/gocron .
+RUN set -ex; \
+    make install-vue; \
+    make build-vue
 
-RUN chown -R app:app ./
+RUN set -ex; \
+    go env -w GO111MODULE=on; \
+    make statik; \
+    CGO_ENABLED=0 make gocron2-node; \
+    CGO_ENABLED=0 make gocron2
 
+FROM sstc/headful-chromium:latest
+
+RUN set -ex; \
+	apt-get update; \
+	DEBIAN_FRONTEND=noninteractive apt install --no-install-recommends -y \
+		tini
+
+WORKDIR /app
+COPY --from=builder /app/bin bin
 EXPOSE 5920
-
-USER app
-
-ENTRYPOINT ["/app/gocron", "web"]
+EXPOSE 5921
+ENTRYPOINT ["tini", "--"]

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 生成压缩包 xx.tar.gz或xx.zip
-# 使用 ./package.sh -a amd664 -p linux -v v2.0.0
+# 使用 ./package.sh -a amd64 -p linux -v v2.0.0
 
 # 任何命令返回非0值退出
 set -o errexit
@@ -40,7 +40,7 @@ LDFLAGS=''
 # 需要打包的文件
 INCLUDE_FILE=()
 # 打包文件生成目录
-PACKAGE_DIR=''
+PACKAGE_DIR='packages'
 # 编译文件生成目录
 BUILD_DIR=''
 
@@ -105,18 +105,8 @@ init() {
     GIT_COMMIT_ID=`git_latest_commit`
     LDFLAGS="-w -X 'main.AppVersion=${VERSION}' -X 'main.BuildDate=`date '+%Y-%m-%d %H:%M:%S'`' -X 'main.GitCommit=${GIT_COMMIT_ID}'"
 
-    PACKAGE_DIR=${BINARY_NAME}-package
     BUILD_DIR=${BINARY_NAME}-build
-
-    if [[ -d ${BUILD_DIR} ]];then
-        rm -rf ${BUILD_DIR}
-    fi
-    if [[ -d ${PACKAGE_DIR} ]];then
-        rm -rf ${PACKAGE_DIR}
-    fi
-
     mkdir -p ${BUILD_DIR}
-    mkdir -p ${PACKAGE_DIR}
 }
 
 # 编译
@@ -134,24 +124,6 @@ build() {
     done
 }
 
-# 打包
-package_binary() {
-    cd ${BUILD_DIR}
-
-    for OS in "${INPUT_OS[@]}";do
-        for ARCH in "${INPUT_ARCH[@]}";do
-        package_file ${BINARY_NAME}-${OS}-${ARCH}
-        if [[ "${OS}" = "windows" ]];then
-            zip -rq ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
-        else
-            tar czf ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.tar.gz ${BINARY_NAME}-${OS}-${ARCH}
-        fi
-        done
-    done
-
-    cd ${OLDPWD}
-}
-
 # 打包文件
 package_file() {
     if [[ "${#INCLUDE_FILE[@]}" = "0" ]];then
@@ -162,11 +134,34 @@ package_file() {
     done
 }
 
+# 打包
+package_binary() {
+    cd ${BUILD_DIR}
+
+    for OS in "${INPUT_OS[@]}";do
+        for ARCH in "${INPUT_ARCH[@]}";do
+        package_file ${BINARY_NAME}-${OS}-${ARCH}
+        if [[ "${OS}" = "windows" ]];then
+            # zip -rq ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
+            7z a -tzip -r ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
+        else
+            tar czf ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.tar.gz ${BINARY_NAME}-${OS}-${ARCH}
+        fi
+        done
+    done
+
+    cd ${OLDPWD}
+}
+
 # 清理
 clean() {
     if [[ -d ${BUILD_DIR} ]];then
         rm -rf ${BUILD_DIR}
     fi
+    # if [[ -d ${PACKAGE_DIR} ]];then
+    #     rm -rf ${PACKAGE_DIR}
+    # fi
+    # mkdir -p ${PACKAGE_DIR}
 }
 
 # 运行
@@ -177,20 +172,14 @@ run() {
     clean
 }
 
-package_gocron() {
-    BINARY_NAME='gocron'
-    MAIN_FILE="./cmd/gocron/gocron.go"
+package_all_cmd() {
+    BINARY_NAME='gocron2'
+    MAIN_FILE="./cmd/gocron2/main.go"
     INCLUDE_FILE=()
-
-
     run
-}
-
-package_gocron_node() {
-    BINARY_NAME='gocron-node'
-    MAIN_FILE="./cmd/node/node.go"
+    BINARY_NAME='gocron2-node'
+    MAIN_FILE="./cmd/gocron2-node/main.go"
     INCLUDE_FILE=()
-
     run
 }
 
@@ -211,6 +200,4 @@ do
     esac
 done
 
-package_gocron
-package_gocron_node
-
+package_all_cmd

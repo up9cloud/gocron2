@@ -21,7 +21,6 @@ func (host *Host) Create() (insertId int16, err error) {
 	if err == nil {
 		insertId = host.Id
 	}
-
 	return
 }
 

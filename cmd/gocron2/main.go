@@ -1,4 +1,4 @@
-// Command gocron
+// Command gocron2
 //go:generate statik -src=../../web/public -dest=../../internal -f
 
 package main
@@ -10,12 +10,12 @@ import (
 
 	macaron "gopkg.in/macaron.v1"
 
-	"github.com/ouqiang/gocron/internal/models"
-	"github.com/ouqiang/gocron/internal/modules/app"
-	"github.com/ouqiang/gocron/internal/modules/logger"
-	"github.com/ouqiang/gocron/internal/modules/setting"
-	"github.com/ouqiang/gocron/internal/routers"
-	"github.com/ouqiang/gocron/internal/service"
+	"github.com/up9cloud/gocron2/internal/models"
+	"github.com/up9cloud/gocron2/internal/modules/app"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/setting"
+	"github.com/up9cloud/gocron2/internal/routers"
+	"github.com/up9cloud/gocron2/internal/service"
 	"github.com/ouqiang/goutil"
 	"github.com/urfave/cli"
 )
@@ -30,8 +30,8 @@ const DefaultPort = 5920
 
 func main() {
 	cliApp := cli.NewApp()
-	cliApp.Name = "gocron"
-	cliApp.Usage = "gocron service"
+	cliApp.Name = "gocron2"
+	cliApp.Usage = "gocron2 service"
 	cliApp.Version, _ = goutil.FormatAppVersion(AppVersion, GitCommit, BuildDate)
 	cliApp.Commands = getCommands()
 	cliApp.Flags = append(cliApp.Flags, []cli.Flag{}...)

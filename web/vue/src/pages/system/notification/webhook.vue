@@ -2,31 +2,30 @@
   <el-container>
     <system-sidebar></system-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/system' }">系统管理</el-breadcrumb-item>
         <el-breadcrumb-item>通知配置</el-breadcrumb-item>
       </el-breadcrumb>
       <notification-tab></notification-tab>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="100px" style="width: 700px;">
+      <el-form ref="form" :model="form" :rules="formRules" label-width="auto" style="max-width: 700px;">
         <el-form-item label="URL" prop="url">
-          <span slot="label">
+          <template #label>
             URL
             <el-tooltip placement="top-start">
-              <div slot="content">
+              <template #content>
                 通知内容推送到指定URL, POST请求, 设置Header [Content-Type: application/json]
-              </div>
-              <i class="el-icon-question"></i>
+              </template>
+              <el-icon><QuestionFilled /></el-icon>
             </el-tooltip>
-          </span>
+          </template>
           <el-input v-model.trim="form.url"></el-input>
         </el-form-item>
         <el-form-item label="模板" prop="template">
           <el-input
             type="textarea"
-            :rows="8"
-            placeholder=""
-            v-model.trim="form.template">
+            :rows="10"
+            v-model="form.template">
           </el-input>
         </el-form-item>
         <el-form-item>
@@ -38,8 +37,8 @@
 </template>
 
 <script>
-import systemSidebar from '../sidebar'
-import notificationTab from './tab'
+import systemSidebar from '../sidebar.vue'
+import notificationTab from './tab.vue'
 import notificationService from '../../../api/notification'
 export default {
   name: 'notification-webhook',

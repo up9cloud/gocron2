@@ -11,11 +11,11 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/ouqiang/gocron/internal/models"
-	"github.com/ouqiang/gocron/internal/modules/app"
-	"github.com/ouqiang/gocron/internal/modules/setting"
-	"github.com/ouqiang/gocron/internal/modules/utils"
-	"github.com/ouqiang/gocron/internal/service"
+	"github.com/up9cloud/gocron2/internal/models"
+	"github.com/up9cloud/gocron2/internal/modules/app"
+	"github.com/up9cloud/gocron2/internal/modules/setting"
+	"github.com/up9cloud/gocron2/internal/modules/utils"
+	"github.com/up9cloud/gocron2/internal/service"
 )
 
 // 系统安装
@@ -25,7 +25,7 @@ type InstallForm struct {
 	DbHost               string `binding:"Required;MaxSize(50)"`
 	DbPort               int    `binding:"Required;Range(1,65535)"`
 	DbUsername           string `binding:"Required;MaxSize(50)"`
-	DbPassword           string `binding:"Required;MaxSize(30)"`
+	DbPassword           string `binding:"exists;MaxSize(30)"`
 	DbName               string `binding:"Required;MaxSize(50)"`
 	DbTablePrefix        string `binding:"MaxSize(20)"`
 	DbSslmode            string `binding:"In(,false,true,skip-verify)"`

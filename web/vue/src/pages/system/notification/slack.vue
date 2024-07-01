@@ -2,29 +2,27 @@
   <el-container>
     <system-sidebar></system-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/system' }">系统管理</el-breadcrumb-item>
         <el-breadcrumb-item>通知配置</el-breadcrumb-item>
       </el-breadcrumb>
       <notification-tab></notification-tab>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="180px" style="width: 700px;">
+      <el-form ref="form" :model="form" :rules="formRules" label-width="auto" style="max-width: 700px;">
         <el-form-item label="Slack Webhook URL" prop="url">
           <el-input v-model="form.url"></el-input>
         </el-form-item>
         <el-form-item label="模板" prop="template">
           <el-input
             type="textarea"
-            :rows="8"
-            placeholder=""
-            size="medium"
+            :rows="10"
             v-model="form.template">
           </el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submit">保存</el-button>
         </el-form-item>
-        <h3>Channel &nbsp;&nbsp;&nbsp;<el-button type="primary" size="mini" icon="el-icon-plus" plain @click="createChannel"></el-button></h3>
+        <h3>Channel &nbsp;&nbsp;&nbsp;<el-button type="primary" size="small" icon="Plus" plain @click="createChannel"></el-button></h3>
         <el-tag
           v-for="item in channels"
           :key="item.id"
@@ -34,11 +32,8 @@
           {{item.name}}
         </el-tag>
       </el-form>
-      <el-dialog
-        title=""
-        :visible.sync="dialogVisible"
-        width="30%">
-        <el-form :model="form">
+      <el-dialog v-model="dialogVisible" width="30%">
+        <el-form :model="form" label-width="auto">
           <el-form-item label="Channel名称" >
             <el-input v-model.trim="channel" v-focus></el-input>
           </el-form-item>
@@ -52,8 +47,8 @@
 </template>
 
 <script>
-import systemSidebar from '../sidebar'
-import notificationTab from './tab'
+import systemSidebar from '../sidebar.vue'
+import notificationTab from './tab.vue'
 import notificationService from '../../../api/notification'
 export default {
   name: 'notification-slack',

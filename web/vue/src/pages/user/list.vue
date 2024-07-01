@@ -2,21 +2,21 @@
   <el-container>
     <user-sidebar></user-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '/user' }">用户管理</el-breadcrumb-item>
           <el-breadcrumb-item>用户列表</el-breadcrumb-item>
       </el-breadcrumb>
       <el-row type="flex" justify="end">
-        <el-button type="primary" icon="el-icon-edit" @click="toEdit(null)" v-if="this.$store.getters.user.isSuperAdmin">新增</el-button>
-        <el-button type="info" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+        <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="this.$store.getters.user.isSuperAdmin">新增</el-button>
+        <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
       </el-row>
 
       <el-table
         :data="users"
         tooltip-effect="dark"
         border
-        style="width: 100%; margin: 20px 0;">
+        style="margin: 20px 0;">
         <el-table-column
           prop="id"
           label="用户id"
@@ -37,11 +37,11 @@
         </el-table-column>
         <el-table-column
           label="状态">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-switch
               v-model="scope.row.status"
               :active-value="1"
-              :inactive-vlaue="0"
+              :inactive-value="0"
               active-color="#13ce66"
               @change="changeStatus(scope.row)"
               inactive-color="#ff4949">
@@ -54,7 +54,7 @@
           label="操作"
           width="250"
           v-if="this.isSuperAdmin">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-row>
               <el-button size="small" type="primary" @click="toEdit(scope.row)">编辑</el-button>
               <el-button size="small" type="success" @click="editPassword(scope.row)">修改密码</el-button>
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import userSidebar from './sidebar'
+import userSidebar from './sidebar.vue'
 import userService from '../../api/user'
 export default {
   name: 'user-list',

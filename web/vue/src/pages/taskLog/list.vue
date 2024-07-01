@@ -2,18 +2,18 @@
   <el-container>
     <task-sidebar></task-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
         <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/task' }">任务管理</el-breadcrumb-item>
         <el-breadcrumb-item>任务日志</el-breadcrumb-item>
       </el-breadcrumb>
-      <el-form :inline="true" >
-        <el-form-item label="">
+      <el-form :inline="true" label-width="auto">
+        <el-form-item>
           <el-input placeholder="请输入任务ID" v-model.trim="searchParams.task_id"></el-input>
         </el-form-item>
-        <el-form-item label="">
-          <el-select v-model.trim="searchParams.protocol" placeholder="执行方式">
-            <el-option label="请选择执行方式" value=""></el-option>
+        <el-form-item>
+          <el-select v-model.trim="searchParams.protocol" placeholder="请选择执行方式">
+            <el-option value=""></el-option>
             <el-option
             v-for="item in protocolList"
             :key="item.value"
@@ -22,9 +22,9 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="">
-          <el-select v-model.trim="searchParams.status">
-            <el-option label="请选择任务状态" value=""></el-option>
+        <el-form-item>
+          <el-select v-model.trim="searchParams.status" placeholder="请选择任务状态">
+            <el-option value=""></el-option>
             <el-option
               v-for="item in statusList"
               :key="item.value"
@@ -34,21 +34,21 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search" @click="search()">搜索</el-button>
+          <el-button type="primary" icon="Search" @click="search()">搜索</el-button>
         </el-form-item>
       </el-form>
       <el-row type="flex" justify="end">
-          <el-button type="danger" icon="el-icon-delete" v-if="this.$store.getters.user.isSuperAdmin" @click="clearLog">清空日志</el-button>
-          <el-button type="info" icon="el-icon-refresh" @click="refresh">刷新</el-button>
+          <el-button type="danger" icon="Delete" v-if="this.$store.getters.user.isSuperAdmin" @click="clearLog">清空日志</el-button>
+          <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
       </el-row>
       <el-table
         :data="logs"
         border
         ref="table"
-        style="width: 100%; margin: 20px 0;">
+        style="margin: 20px 0;">
         <el-table-column type="expand">
-          <template slot-scope="scope">
-            <el-form label-position="left">
+          <template #default="scope">
+            <el-form label-width="auto" label-position="left">
               <el-form-item>
                   重试次数: {{scope.row.retry_times}} <br>
                   cron表达式: {{scope.row.spec}} <br>
@@ -80,17 +80,17 @@
         <el-table-column
           label="任务节点"
           width="150">
-          <template slot-scope="scope">
-            <div v-html="scope.row.hostname">{{scope.row.hostname}}</div>
+          <template #default="scope">
+            <div>{{scope.row.hostname}}</div>
           </template>
         </el-table-column>
         <el-table-column
           label="执行时长"
           width="250">
-          <template slot-scope="scope">
+          <template #default="scope">
             执行时长: {{scope.row.total_time > 0 ? scope.row.total_time : 1}}秒<br>
-            开始时间: {{scope.row.start_time | formatTime}}<br>
-            <span v-if="scope.row.status !== 1">结束时间: {{scope.row.end_time | formatTime}}</span>
+            开始时间: {{$filters.formatTime(scope.row.start_time)}}<br>
+            <span v-if="scope.row.status !== 1">结束时间: {{$filters.formatTime(scope.row.end_time)}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -98,7 +98,7 @@
           width="100"
           align="center"
           >
-          <template slot-scope="scope">
+          <template #default="scope">
             <span v-if="scope.row.status === 0">
               <el-tag type="danger">失败</el-tag>
             </span>
@@ -118,7 +118,7 @@
           align="center"
           header-align="left"
           width="110" v-if="this.isAdmin">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-button size="small" type="success"
                        v-if="scope.row.status === 2"
                        @click="showTaskResult(scope.row)">查看结果</el-button>
@@ -134,7 +134,7 @@
         <el-table-column
           label="执行结果"
           width="102" v-else>
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-button size="small" type="success"
                        v-if="scope.row.status === 2"
                        @click="showTaskResult(scope.row)">查看结果</el-button>
@@ -156,9 +156,7 @@
           @next-click="changePage">
         </el-pagination>
       </el-row>
-      <el-dialog
-        :visible.sync="dialogVisible"
-        width="70%">
+      <el-dialog v-model="dialogVisible" width="70%">
         <div>
           <pre>{{currentTaskResult.command}}</pre>
         </div>
@@ -171,7 +169,7 @@
 </template>
 
 <script>
-import taskSidebar from '../task/sidebar'
+import taskSidebar from '../task/sidebar.vue'
 import taskLogService from '../../api/taskLog'
 
 export default {

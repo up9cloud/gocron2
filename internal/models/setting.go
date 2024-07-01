@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"encoding/json"
 )
 
@@ -65,7 +66,7 @@ func (setting *Setting) InitBasicField() {
 
 	setting.Code = SlackCode
 	setting.Key = SlackTemplateKey
-	setting.Value = slackTemplate
+	setting.Value = strings.TrimSpace(slackTemplate)
 	Db.Insert(setting)
 	setting.Id = 0
 
@@ -77,13 +78,13 @@ func (setting *Setting) InitBasicField() {
 
 	setting.Code = MailCode
 	setting.Key = MailTemplateKey
-	setting.Value = emailTemplate
+	setting.Value = strings.TrimSpace(emailTemplate)
 	Db.Insert(setting)
 	setting.Id = 0
 
 	setting.Code = WebhookCode
 	setting.Key = WebhookTemplateKey
-	setting.Value = webhookTemplate
+	setting.Value = strings.TrimSpace(webhookTemplate)
 	Db.Insert(setting)
 	setting.Id = 0
 

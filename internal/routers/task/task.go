@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-macaron/binding"
 	"github.com/jakecoffman/cron"
-	"github.com/ouqiang/gocron/internal/models"
-	"github.com/ouqiang/gocron/internal/modules/logger"
-	"github.com/ouqiang/gocron/internal/modules/utils"
-	"github.com/ouqiang/gocron/internal/routers/base"
-	"github.com/ouqiang/gocron/internal/routers/user"
-	"github.com/ouqiang/gocron/internal/service"
+	"github.com/up9cloud/gocron2/internal/models"
+	"github.com/up9cloud/gocron2/internal/modules/logger"
+	"github.com/up9cloud/gocron2/internal/modules/utils"
+	"github.com/up9cloud/gocron2/internal/routers/base"
+	"github.com/up9cloud/gocron2/internal/routers/user"
+	"github.com/up9cloud/gocron2/internal/service"
 	"gopkg.in/macaron.v1"
 )
 
@@ -112,7 +112,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 			return json.CommonFailure("获取任务详情失败", errMsg)
 		}
 
-		if !validateWriteAuth(ctx, task.Creater) {
+		if !validateWriteAuth(ctx, task.Creator) {
 			return json.CommonFailure("该任务无权限操作")
 		}
 	}
@@ -187,7 +187,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	taskModel.Updater = user.Uid(ctx)
 
 	if id == 0 {
-		taskModel.Creater = user.Uid(ctx)
+		taskModel.Creator = user.Uid(ctx)
 		id, err = taskModel.Create()
 	} else {
 		_, err = taskModel.UpdateBean(id)
@@ -232,7 +232,7 @@ func Remove(ctx *macaron.Context) string {
 		return json.CommonFailure("获取任务详情失败", errMsg)
 	}
 
-	if !validateWriteAuth(ctx, task.Creater) {
+	if !validateWriteAuth(ctx, task.Creator) {
 		return json.CommonFailure("该任务无权限操作")
 	}
 
@@ -269,7 +269,7 @@ func Run(ctx *macaron.Context) string {
 		return json.CommonFailure("获取任务详情失败", err)
 	}
 
-	if !validateWriteAuth(ctx, task.Creater) {
+	if !validateWriteAuth(ctx, task.Creator) {
 		return json.CommonFailure("该任务无权限操作", err)
 	}
 
@@ -290,7 +290,7 @@ func changeStatus(ctx *macaron.Context, status models.Status) string {
 		return json.CommonFailure("获取任务详情失败", errMsg)
 	}
 
-	if !validateWriteAuth(ctx, task.Creater) {
+	if !validateWriteAuth(ctx, task.Creator) {
 		return json.CommonFailure("该任务无权限操作")
 	}
 

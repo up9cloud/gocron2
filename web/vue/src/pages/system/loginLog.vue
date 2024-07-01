@@ -2,7 +2,7 @@
   <el-container>
     <system-sidebar></system-sidebar>
     <el-main>
-      <el-breadcrumb separator-class="el-icon-arrow-right" style="margin-bottom:20px">
+      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
           <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
           <el-breadcrumb-item :to="{ path: '/system' }">系统管理</el-breadcrumb-item>
           <el-breadcrumb-item>登录日志</el-breadcrumb-item>
@@ -11,7 +11,7 @@
         :data="logs"
         border
         ref="table"
-        style="width: 100%; margin-bottom: 20px;">
+        style="margin-bottom: 20px;">
         <el-table-column
           prop="id"
           label="ID">
@@ -25,10 +25,9 @@
           label="登录IP">
         </el-table-column>
         <el-table-column
-          label="登录时间"
-          width="">
-          <template slot-scope="scope">
-            {{scope.row.created | formatTime}}
+          label="登录时间">
+          <template #default="scope">
+            {{$filters.formatTime(scope.row.created)}}
           </template>
         </el-table-column>
       </el-table>
@@ -49,7 +48,7 @@
 </template>
 
 <script>
-import systemSidebar from './sidebar'
+import systemSidebar from './sidebar.vue'
 import systemService from '../../api/system'
 export default {
   name: 'login-log',
