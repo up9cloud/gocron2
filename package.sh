@@ -12,11 +12,6 @@ set -o pipefail
 
 eval $(go env)
 
-# 二进制文件名
-BINARY_NAME=''
-# main函数所在文件
-MAIN_FILE=""
-
 # 提取git最新tag作为应用版本
 VERSION=''
 # 最新git commit id
@@ -37,21 +32,20 @@ SUPPORT_ARCH=(386 amd64 arm64)
 
 # 编译参数
 LDFLAGS=''
-# 需要打包的文件
-INCLUDE_FILE=()
+# 编译文件生成目录
+BUILD_DIR='build'
 # 打包文件生成目录
 PACKAGE_DIR='packages'
-# 编译文件生成目录
-BUILD_DIR=''
+# 需要額外打包的文件
+INCLUDE_FILE=()
 
 # 获取git 最新tag name
 git_latest_tag() {
-    local COMMIT_ID=""
-    local TAG_NAME=""
-    COMMIT_ID=`git rev-list --tags --max-count=1`
-    TAG_NAME=`git describe --tags "${COMMIT_ID}"`
-
-    echo ${TAG_NAME}
+    local commit_id=""
+    local tag_name=""
+    commit_id=`git rev-list --tags --max-count=1`
+    tag_name=`git describe --tags "${commit_id}"`
+    echo ${tag_name}
 }
 
 # 获取git 最新commit id
@@ -72,32 +66,26 @@ print_message_and_exit() {
     exit 1
 }
 
-# 设置系统、CPU架构
-set_os_arch() {
+# 初始化
+init() {
+    # 设置系统
     if [[ ${#INPUT_OS[@]} = 0 ]];then
         INPUT_OS=("${DEFAULT_OS}")
     fi
-
-    if [[ ${#INPUT_ARCH[@]} = 0 ]];then
-        INPUT_ARCH=("${DEFAULT_ARCH}")
-    fi
-
     for OS in "${INPUT_OS[@]}"; do
         if [[  ! "${SUPPORT_OS[*]}" =~ ${OS} ]]; then
             print_message_and_exit "不支持的系统${OS}"
         fi
     done
-
+    # 设置CPU架构
+    if [[ ${#INPUT_ARCH[@]} = 0 ]];then
+        INPUT_ARCH=("${DEFAULT_ARCH}")
+    fi
     for ARCH in "${INPUT_ARCH[@]}";do
         if [[ ! "${SUPPORT_ARCH[*]}" =~ ${ARCH} ]]; then
             print_message_and_exit "不支持的CPU架构${ARCH}"
         fi
     done
-}
-
-# 初始化
-init() {
-    set_os_arch
 
     if [[ -z "${VERSION}" ]];then
         VERSION=`git_latest_tag`
@@ -105,31 +93,32 @@ init() {
     GIT_COMMIT_ID=`git_latest_commit`
     LDFLAGS="-w -X 'main.AppVersion=${VERSION}' -X 'main.BuildDate=`date '+%Y-%m-%d %H:%M:%S'`' -X 'main.GitCommit=${GIT_COMMIT_ID}'"
 
-    BUILD_DIR=${BINARY_NAME}-build
     mkdir -p ${BUILD_DIR}
     mkdir -p ${PACKAGE_DIR}
 }
 
 # 编译
 build() {
-    local FILENAME=''
-    for OS in "${INPUT_OS[@]}";do
-        for ARCH in "${INPUT_ARCH[@]}";do
-            if [[ "${OS}" = "windows"  ]];then
-                FILENAME=${BINARY_NAME}.exe
-            else
-                FILENAME=${BINARY_NAME}
-            fi
-            env CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME}-${OS}-${ARCH}/${FILENAME} ${MAIN_FILE}
+    # 二进制文件名
+    local binary_name="$1"
+    # main函数所在文件
+    local main_file="./cmd/${binary_name}/main.go"
+    local output_filename=''
+    for os in "${INPUT_OS[@]}";do
+        if [[ "${os}" = "windows"  ]];then
+            output_filename=${binary_name}.exe
+        else
+            output_filename=${binary_name}
+        fi
+        for arch in "${INPUT_ARCH[@]}";do
+            local build_target_dir="${binary_name}-${VERSION}-${os}-${arch}"
+            env CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} go build -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${build_target_dir}/${output_filename} ${main_file}
         done
     done
 }
 
 # 打包文件
 package_file() {
-    if [[ "${#INCLUDE_FILE[@]}" = "0" ]];then
-        return
-    fi
     for item in "${INCLUDE_FILE[@]}"; do
         cp -r ../${item} $1
     done
@@ -137,21 +126,28 @@ package_file() {
 
 # 打包
 package_binary() {
+    local binary_name="$1"
     cd ${BUILD_DIR}
-
-    for OS in "${INPUT_OS[@]}";do
-        for ARCH in "${INPUT_ARCH[@]}";do
-        package_file ${BINARY_NAME}-${OS}-${ARCH}
-        if [[ "${OS}" = "windows" ]];then
-            # zip -rq ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
-            7z a -tzip -r ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
+    local root_dir=${OLDPWD}
+    for os in "${INPUT_OS[@]}";do
+        for arch in "${INPUT_ARCH[@]}";do
+        local build_target_dir="${binary_name}-${VERSION}-${os}-${arch}"
+        package_file ${build_target_dir}
+        cd $build_target_dir
+        if [[ "${os}" = "windows" ]];then
+            local package_output_filepath="../../${PACKAGE_DIR}/${build_target_dir}.zip"
+            # zip -rq ${package_output_filepath} .
+            7z a -tzip -mx9 -r ${package_output_filepath} .
+            7z l ${package_output_filepath}
         else
-            tar czf ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.tar.gz ${BINARY_NAME}-${OS}-${ARCH}
+            local package_output_filepath="../../${PACKAGE_DIR}/${build_target_dir}.tar.gz"
+            tar -I 'gzip -9' -cf ${package_output_filepath} .
+            tar -ztvf ${package_output_filepath}
         fi
+        cd ${OLDPWD}
         done
     done
-
-    cd ${OLDPWD}
+    cd ${root_dir}
 }
 
 # 清理
@@ -164,23 +160,18 @@ clean() {
     # fi
 }
 
-# 运行
-run() {
-    init
-    build
-    package_binary
-    clean
-}
-
 package_all_cmd() {
-    BINARY_NAME='gocron2'
-    MAIN_FILE="./cmd/gocron2/main.go"
-    INCLUDE_FILE=()
-    run
-    BINARY_NAME='gocron2-node'
-    MAIN_FILE="./cmd/gocron2-node/main.go"
-    INCLUDE_FILE=()
-    run
+    init
+
+    binary_name='gocron2'
+    build ${binary_name}
+    package_binary ${binary_name}
+
+    binary_name='gocron2-node'
+    build ${binary_name}
+    package_binary ${binary_name}
+
+    clean
 }
 
 # p 平台 linux darwin windows
