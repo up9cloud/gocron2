@@ -12,7 +12,7 @@
 
 原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)
 
-[原項目 https://github.com/ouqiang/gocron](https://github.com/ouqiang/gocron)的作者不更新了。[此為原文档](https://github.com/up9cloud/gocron2/wiki)
+原項目 [https://github.com/ouqiang/gocron](https://github.com/ouqiang/gocron) 的作者不更新了。[此為原文档](https://github.com/up9cloud/gocron2/wiki)
 
 所以基於大家的 Folks 搞了新的 `gocron2` 縫合怪，詳細縫合訊息請看下方 Credits
 
@@ -126,7 +126,7 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 - Web框架 [Macaron](http://go-macaron.com/)
 - 定时任务调度 [Cron](https://github.com/robfig/cron)
 - ORM [Xorm](https://github.com/go-xorm/xorm)
-- UI框架 [Element UI](https://github.com/ElemeFE/element)
+- UI框架 [Element Plus](https://element-plus.org)
 - 依赖管理 [Govendor](https://github.com/kardianos/govendor)
 - RPC框架 [gRPC](https://github.com/grpc/grpc)
 
