@@ -31,3 +31,5 @@ conf
 profile/*
 /bin
 /packages
+/web/public/*
+/internal/statik
