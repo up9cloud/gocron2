@@ -18,17 +18,17 @@
         <el-icon><Upload /></el-icon>
         <span>任务节点</span>
       </el-menu-item>
-      <el-menu-item index="/user" v-if="this.$store.getters.user.isSuperAdmin">
+      <el-menu-item index="/user" v-if="$store.getters.user.isSuperAdmin">
         <el-icon><Service /></el-icon>
         <span>用户管理</span>
       </el-menu-item>
-      <el-menu-item index="/system" v-if="this.$store.getters.user.isSuperAdmin">
+      <el-menu-item index="/system" v-if="$store.getters.user.isSuperAdmin">
         <el-icon><Setting /></el-icon>
         <span>系统管理</span>
       </el-menu-item>
 
-      <el-sub-menu index="userStatus" v-if="this.$store.getters.user.token" style='margin-left: auto;'>
-        <template #title>{{this.$store.getters.user.username}}</template>
+      <el-sub-menu index="userStatus" v-if="$store.getters.user.token" style='margin-left: auto;'>
+        <template #title>{{$store.getters.user.username}}</template>
         <el-menu-item index="/user/edit-my-password">
           <el-icon><Edit /></el-icon>
           <span>修改密码</span>

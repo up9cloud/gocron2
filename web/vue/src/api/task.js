@@ -14,6 +14,18 @@ export default {
     ], callback)
   },
 
+  dependencyList (query, callback) {
+    httpClient.batchGet([
+      {
+        uri: '/task/dependency',
+        params: query
+      },
+      {
+        uri: '/host/all'
+      }
+    ], callback)
+  },
+
   detail (id, callback) {
     httpClient.batchGet([
       {
@@ -43,5 +55,9 @@ export default {
 
   run (id, callback) {
     httpClient.get(`/task/run/${id}`, {}, callback)
+  },
+
+  tagList(callback){
+    httpClient.get(`/task/tags`, {}, callback)
   }
 }

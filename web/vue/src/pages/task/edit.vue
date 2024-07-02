@@ -78,7 +78,7 @@
         </el-row>
         <el-row>
           <el-col :span="16">
-            <el-form-item label="子任务ID" v-if="form.level === 1">
+            <el-form-item label="子任务ID">
               <el-input
                 v-model.trim="form.dependency_task_id"
                 placeholder="多个ID逗号分隔"

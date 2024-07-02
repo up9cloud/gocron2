@@ -1,3 +1,6 @@
+<script setup>
+import taskResult from '../../components/taskResult.vue'
+</script>
 <template>
   <el-container>
     <task-sidebar></task-sidebar>
@@ -38,8 +41,24 @@
         </el-form-item>
       </el-form>
       <el-row type="flex" justify="end">
-          <el-button type="danger" icon="Delete" v-if="this.$store.getters.user.isSuperAdmin" @click="clearLog">清空日志</el-button>
-          <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
+        <el-col>
+          <el-button type="success" v-if="searchParams.task_id > 0"  @click="runTask(searchParams.task_id)">手动执行</el-button>
+          <el-tooltip class="item" effect="dark" content="清空日志,重置日志主键ID" placement="top-start">
+            <el-button type="danger" icon="Delete" v-if="$store.getters.user.isSuperAdmin" @click="clearLog">清空日志</el-button>
+          </el-tooltip>
+          <el-button-group v-if="$store.getters.user.isAdmin">
+            <el-tooltip class="item" effect="dark" content="删除1天前日志" placement="top-start">
+              <el-button type="warning" @click="removeLogDay(1)">1天</el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="删除7天前日志" placement="top-start">
+              <el-button type="warning" @click="removeLogDay(7)">7天</el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="删除1月前日志" placement="top-start">
+              <el-button type="warning" @click="removeLog(1)">1月</el-button>
+            </el-tooltip>
+          </el-button-group>
+          <el-button type="info" @click="refresh">刷新</el-button>
+        </el-col>
       </el-row>
       <el-table
         :data="logs"
@@ -99,25 +118,14 @@
           align="center"
           >
           <template #default="scope">
-            <span v-if="scope.row.status === 0">
-              <el-tag type="danger">失败</el-tag>
-            </span>
-            <span v-else-if="scope.row.status === 1">
-              <el-tag>执行中</el-tag>
-            </span>
-            <span v-else-if="scope.row.status === 2">
-              <el-tag type="success">成功</el-tag>
-            </span>
-            <span v-else-if="scope.row.status === 3">
-              <el-tag type="info">取消</el-tag>
-            </span>
+            <taskResult v-model="scope.row"></taskResult>
           </template>
         </el-table-column>
         <el-table-column
           label="操作"
           align="center"
           header-align="left"
-          width="110" v-if="this.isAdmin">
+          width="110" v-if="isAdmin">
           <template #default="scope">
             <el-button size="small" type="success"
                        v-if="scope.row.status === 2"
@@ -127,8 +135,7 @@
                        @click="showTaskResult(scope.row)" >查看结果</el-button>
             <el-button size="small" type="danger"
                        v-if="scope.row.status === 1 && scope.row.protocol === 2"
-                       @click="stopTask(scope.row)">停止任务
-            </el-button>
+                       @click="stopTask(scope.row)">停止任务</el-button>
           </template>
         </el-table-column>
         <el-table-column
@@ -171,6 +178,7 @@
 <script>
 import taskSidebar from '../task/sidebar.vue'
 import taskLogService from '../../api/taskLog'
+import taskService from '../../api/task'
 
 export default {
   name: 'task-log',
@@ -261,6 +269,22 @@ export default {
         })
       })
     },
+    removeLog (month) {
+      this.$appConfirm(() => {
+        taskLogService.remove(month,() => {
+          this.searchParams.page = 1
+          this.search()
+        })
+      })
+    },
+    removeLogDay (day) {
+      this.$appConfirm(() => {
+        taskLogService.removeDay(day,() => {
+          this.searchParams.page = 1
+          this.search()
+        })
+      })
+    },
     stopTask (item) {
       taskLogService.stop(item.id, item.task_id, () => {
         this.search()
@@ -275,6 +299,14 @@ export default {
       this.search(() => {
         this.$message.success('刷新成功')
       })
+    },
+    runTask (taskId) {
+      this.$appConfirm(() => {
+        taskService.run(taskId, () => {
+          this.$message.success('任务已开始执行')
+          this.refresh()
+        })
+      }, true)
     }
   }
 }

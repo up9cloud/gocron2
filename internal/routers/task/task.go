@@ -74,6 +74,28 @@ func Index(ctx *macaron.Context) string {
 	})
 }
 
+func Dependency(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	queryParams := parseQueryParams(ctx)
+	total, err := taskModel.Total(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
+	tasks, err := taskModel.DependencyList(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
+	for i, item := range tasks {
+		tasks[i].NextRunTime = service.ServiceTask.NextRunTime(item)
+	}
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+		"data":  tasks,
+	})
+}
+
 // Detail 任务详情
 func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
@@ -88,6 +110,18 @@ func Detail(ctx *macaron.Context) string {
 	return jsonResp.Success(utils.SuccessContent, task)
 }
 
+// 标签列表
+func Tags(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	tagsList, err := taskModel.TagsList()
+	jsonResp := utils.JsonResponse{}
+	if err != nil {
+		logger.Errorf("编辑任务#获取任务Tags列表出错")
+		return jsonResp.Success(utils.SuccessContent, nil)
+	}
+	return jsonResp.Success(utils.SuccessContent, tagsList)
+}
+
 // 保存任务  todo 拆分为多个方法
 func Store(ctx *macaron.Context, form TaskForm) string {
 	json := utils.JsonResponse{}
@@ -99,6 +133,17 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	}
 	if nameExists {
 		return json.CommonFailure("任务名称已存在")
+	}
+
+	if form.DependencyTaskId != "" {
+		childrenIds := strings.Split(form.DependencyTaskId, ",")
+		for _, childrenId := range childrenIds {
+			intChildrenId, _ := strconv.Atoi(childrenId)
+			childrenUsed := taskModel.ChildrenExist(id,intChildrenId)
+			if childrenUsed {
+				return json.CommonFailure("子任务不能被重复使用")
+			}
+		}
 	}
 
 	if form.Protocol == models.TaskRPC && form.HostId == "" {
@@ -173,7 +218,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 			return json.CommonFailure("crontab表达式解析失败", err)
 		}
 	} else {
-		taskModel.DependencyTaskId = ""
+		//taskModel.DependencyTaskId = ""
 		taskModel.Spec = ""
 	}
 

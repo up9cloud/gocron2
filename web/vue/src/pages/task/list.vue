@@ -32,20 +32,20 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item>
-          <el-select v-model.trim="searchParams.host_id" placeholder="请选择任务节点" style="width: 192px">
-            <el-option value=""></el-option>
+        <el-form-item label="任务节点">
+          <el-select v-model.trim="searchParams.host_id" clearable placeholder="请选择">
+            <el-option label="全部" value=""></el-option>
             <el-option
               v-for="item in hosts"
               :key="item.id"
-              :label="item.alias + ' - ' + item.name + ':' + item.port "
+              :label="item.alias + ' - ' + item.name + ':' + item.port"
               :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item>
-          <el-select v-model.trim="searchParams.status" placeholder="请选择任务状态" style="width: 192px">
-            <el-option value=""></el-option>
+        <el-form-item label="状态">
+          <el-select v-model.trim="searchParams.status" placeholder="请选择" clearable>
+            <el-option label="全部" value=""></el-option>
             <el-option
               v-for="item in statusList"
               :key="item.value"
@@ -61,7 +61,7 @@
       </el-row>
     </el-form>
     <el-row type="flex" justify="end">
-      <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="this.$store.getters.user.isAdmin">新增</el-button>
+      <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="$store.getters.user.isAdmin">新增</el-button>
       <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
     </el-row>
     <el-container>
@@ -149,7 +149,7 @@
           label="执行方式" width="100">
         </el-table-column>
         <el-table-column
-          label="状态" width="100" v-if="this.isAdmin" >
+          label="状态" width="100" v-if="isAdmin" >
             <template #default="scope">
               <el-switch
                 v-if="scope.row.level === 1"
@@ -181,16 +181,14 @@
           header-align="left"
           label="操作"
           width="180"
-          v-if="this.isAdmin">
+          v-if="isAdmin">
           <template #default="scope">
-            <el-row>
+            <el-button-group>
               <el-button type="primary" size="small" @click="toEdit(scope.row)" :disabled="!checkAuth(scope.row)">编辑</el-button>
               <el-button type="success" size="small" @click="runTask(scope.row)" :disabled="!checkAuth(scope.row)">手动执行</el-button>
-            </el-row>
-            <el-row>
               <el-button type="danger" size="small" @click="remove(scope.row)" :disabled="!checkAuth(scope.row)">删除</el-button>
               <el-button type="info" size="small" @click="jumpToLog(scope.row)">查看日志</el-button>
-            </el-row>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>
@@ -221,17 +219,18 @@ export default {
     return {
       tasks: [],
       hosts: [],
+      tagList: [],
       taskTotal: 0,
       searchParams: {
         page_size: 20,
         page: 1,
-        id: '',
-        protocol: '',
-        name: '',
-        tag: '',
-        host_id: '',
-        status: '',
-        command: ''
+        id: sessionStorage.getItem('searchParams.id') || '',
+        protocol: sessionStorage.getItem('searchParams.protocol') || '',
+        name: sessionStorage.getItem('searchParams.name') || '',
+        tag: sessionStorage.getItem('searchParams.tag') || '',
+        host_id: Number(sessionStorage.getItem('searchParams.host_id')) || '',
+        status: sessionStorage.getItem('searchParams.status') || '',
+        command: sessionStorage.getItem('searchParams.command') || '',
       },
       isAdmin: this.$store.getters.user.isAdmin,
       protocolList: [
@@ -262,7 +261,7 @@ export default {
     if (hostId) {
       this.searchParams.host_id = hostId
     }
-
+    this.initTagList()
     this.search()
   },
   methods: {
@@ -326,6 +325,11 @@ export default {
         if (callback) {
           callback()
         }
+      })
+    },
+    initTagList(){
+      taskService.tagList((list) => {
+        this.tagList = list
       })
     },
     runTask (item) {

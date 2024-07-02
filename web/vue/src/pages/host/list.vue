@@ -22,7 +22,7 @@
       </el-form>
 
       <el-row type="flex" justify="end">
-        <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="this.$store.getters.user.isAdmin">新增</el-button>
+        <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="$store.getters.user.isAdmin">新增</el-button>
         <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
       </el-row>
 
@@ -55,24 +55,14 @@
           align="center"
           header-align="left"
           label="操作"
-          v-if="this.isAdmin">
+          v-if="isAdmin">
           <template #default="scope">
-            <el-row>
-              <el-col :span="12">
-                <el-button size="small" type="primary" @click="toEdit(scope.row)">编辑</el-button>
-              </el-col>
-              <el-col :span="12">
-                <el-button size="small" type="success" @click="toTasks(scope.row)">查看任务</el-button>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
-              </el-col>
-              <el-col :span="12">
-                <el-button size="small" type="info" @click="ping(scope.row)">测试连接</el-button>
-              </el-col>
-            </el-row>
+            <el-button-group>
+              <el-button size="small" type="primary" @click="toEdit(scope.row)">编辑</el-button>
+              <el-button size="small" type="success" @click="toTasks(scope.row)">查看任务</el-button>
+              <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
+              <el-button size="small" type="info" @click="ping(scope.row)">测试连接</el-button>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>

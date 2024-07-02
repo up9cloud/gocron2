@@ -27,6 +27,10 @@ type TaskLog struct {
 	BaseModel  `json:"-" xorm:"-"`
 }
 
+func taskLogTableName() []string {
+	return []string{TablePrefix + "task_log", "th"}
+}
+
 func (taskLog *TaskLog) Create() (insertId int64, err error) {
 	_, err = Db.Insert(taskLog)
 	if err == nil {
@@ -63,12 +67,19 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 
 // 清空表
 func (taskLog *TaskLog) Clear() (int64, error) {
-	return Db.Where("1=1").Delete(taskLog)
+	_, err := Db.Exec("TRUNCATE TABLE " + taskLogTableName()[0])
+	return 1, err
 }
 
 // 删除N个月前的日志
 func (taskLog *TaskLog) Remove(id int) (int64, error) {
 	t := time.Now().AddDate(0, -id, 0)
+	return Db.Where("start_time <= ?", t.Format(DefaultTimeFormat)).Delete(taskLog)
+}
+
+// 删除N天前的日志
+func (taskLog *TaskLog) RemoveDay(id int) (int64, error) {
+	t := time.Now().AddDate(0, 0, -id)
 	return Db.Where("start_time <= ?", t.Format(DefaultTimeFormat)).Delete(taskLog)
 }
 

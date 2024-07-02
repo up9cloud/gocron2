@@ -8,7 +8,7 @@
           <el-breadcrumb-item>用户列表</el-breadcrumb-item>
       </el-breadcrumb>
       <el-row type="flex" justify="end">
-        <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="this.$store.getters.user.isSuperAdmin">新增</el-button>
+        <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="$store.getters.user.isSuperAdmin">新增</el-button>
         <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
       </el-row>
 
@@ -52,14 +52,13 @@
           align="center"
           header-align="left"
           label="操作"
-          width="250"
-          v-if="this.isSuperAdmin">
+          v-if="isSuperAdmin">
           <template #default="scope">
-            <el-row>
+            <el-button-group>
               <el-button size="small" type="primary" @click="toEdit(scope.row)">编辑</el-button>
               <el-button size="small" type="success" @click="editPassword(scope.row)">修改密码</el-button>
               <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
-            </el-row>
+            </el-button-group>
           </template>
         </el-table-column>
       </el-table>

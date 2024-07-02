@@ -15,6 +15,7 @@
         <el-icon><Tickets /></el-icon>
         <span>任务日志</span>
       </el-menu-item>
+      <el-menu-item index="/task/dependency">任务依赖</el-menu-item>
     </el-menu>
   </el-aside>
 </template>
@@ -29,6 +30,8 @@ export default {
     currentRoute () {
       if (this.$route.path === '/task/log') {
         return '/task/log'
+      } else if (this.$route.path === '/task/dependency') {
+        return '/task/dependency'
       }
       return '/task'
     }

@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 
@@ -65,11 +66,22 @@ type Task struct {
 	Updater          int                  `json:"updater" xorm:"int notnull default 0"`          // 更新者
 	BaseModel        `json:"-" xorm:"-"`
 	Hosts            []TaskHostDetail `json:"hosts" xorm:"-"`
-	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"`
+	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"` //下次运行时间
+	Children         []Task           `json:"children" xorm:"-"`      //子任务
+	LastRunInfo      TaskLog          `json:"last_run_info" xorm:"-"` //最后执行日志信息
+}
+
+type Tags struct {
+	TagName string  `json:"tag_name" xorm:"tag_name"`
+	TagNum  int  `json:"tag_num" xorm:"tag_num"`
 }
 
 func taskHostTableName() []string {
 	return []string{TablePrefix + "task_host", "th"}
+}
+
+func taskTableName() []string {
+	return []string{TablePrefix + "task", "th"}
 }
 
 // 新增
@@ -106,6 +118,13 @@ func (task *Task) Disable(id int) (int64, error) {
 // 激活
 func (task *Task) Enable(id int) (int64, error) {
 	return task.Update(id, CommonMap{"status": Enabled})
+}
+
+// 获取任务Tags列表
+func (task *Task) TagsList() ([]Tags, error) {
+	list := make([]Tags, 0)
+	err := Db.Table(taskTableName()).Select("tag as tag_name, count(*) as tag_num").Where("status = ? ", Enabled).GroupBy("tag").Find(&list)
+	return list, err
 }
 
 // 获取所有激活任务
@@ -158,6 +177,21 @@ func (task *Task) setHostsForTasks(tasks []Task) ([]Task, error) {
 	return tasks, err
 }
 
+func (task *Task) setLastRunInfo(tasks []Task) []Task {
+	taskLogModel := new(TaskLog)
+	for i, value := range tasks {
+		var params = CommonMap{}
+		params["TaskId"] = value.Id
+		params["PageSize"] = 1
+		params["Page"] = 1
+		taskHostDetails, _ := taskLogModel.List(params)
+		if len(taskHostDetails) > 0 {
+			tasks[i].LastRunInfo = taskHostDetails[0]
+		}
+	}
+	return tasks
+}
+
 // 判断任务名称是否存在
 func (task *Task) NameExist(name string, id int) (bool, error) {
 	if id > 0 {
@@ -167,6 +201,15 @@ func (task *Task) NameExist(name string, id int) (bool, error) {
 	count, err := Db.Where("name = ? AND status = ?", name, Enabled).Count(task)
 
 	return count > 0, err
+}
+
+func (task *Task) ChildrenExist(id int, childrenId int) bool {
+	if id > 0 {
+		count, _ := Db.Where("id != ? and FIND_IN_SET(?, dependency_task_id )", id, childrenId).Count(task)
+		println(count)
+		return count > 0
+	}
+	return true
 }
 
 func (task *Task) GetStatus(id int) (Status, error) {
@@ -206,7 +249,51 @@ func (task *Task) List(params CommonMap) ([]Task, error) {
 		return nil, err
 	}
 
+	list = task.setLastRunInfo(list)
 	return task.setHostsForTasks(list)
+}
+
+func (task *Task) DependencyList(params CommonMap) ([]Task, error) {
+	task.parsePageAndPageSize(params)
+	list := make([]Task, 0)
+	session := Db.Alias("t").Join("LEFT", taskHostTableName(), "t.id = th.task_id")
+	task.parseWhere(session, params)
+	session.And("t.level = ?", 1)
+	session.And("t.dependency_task_id > ?", 0)
+	err := session.GroupBy("t.id").Desc("t.id").Cols("t.*").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
+
+	if err != nil {
+		return nil, err
+	}
+
+	list, _ = task.setChildrenForTask(list)
+	list = task.setLastRunInfo(list)
+	return task.setHostsForTasks(list)
+}
+
+func (task *Task) setChildrenForTask(tasks []Task) ([]Task, error) {
+	var err error
+	for i, value := range tasks {
+		tasks[i].Children = task.setChildrenRecursion(value)
+	}
+	return tasks, err
+}
+
+func (task *Task) setChildrenRecursion(value Task) []Task {
+	tasks := make([]Task, 0)
+	if value.DependencyTaskId != "" {
+		dependencyTaskIds := strings.Split(value.DependencyTaskId, ",")
+		for _, taskId := range dependencyTaskIds {
+			taskIdInt, _ := strconv.Atoi(taskId)
+			dt, _ := task.Detail(taskIdInt)
+			if dt.DependencyTaskId != "" {
+				dt.Children = task.setChildrenRecursion(dt)
+			}
+			tasks = append(tasks, dt)
+		}
+	}
+	tasks = task.setLastRunInfo(tasks)
+	return tasks
 }
 
 // 获取依赖任务列表
@@ -263,20 +350,18 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	}
 	protocol, ok := params["Protocol"]
 	if ok && protocol.(int) > 0 {
-		session.And("protocol = ?", protocol)
+		session.And("t.protocol = ?", protocol)
 	}
 	status, ok := params["Status"]
 	if ok && status.(int) > -1 {
-		session.And("status = ?", status)
+		session.And("t.status = ?", status)
 	}
-
+	command, ok := params["Command"]
+	if ok && command.(string) != "" {
+		session.And("t.command like  ?", "%"+command.(string)+"%")
+	}
 	tag, ok := params["Tag"]
 	if ok && tag.(string) != "" {
 		session.And("tag = ? ", tag)
-	}
-
-	command, ok := params["Command"]
-	if ok && command.(string) != "" {
-		session.And("t.command LIKE ?", "%"+command.(string)+"%")
 	}
 }

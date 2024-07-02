@@ -6,6 +6,7 @@ import NotFound from '../components/common/notFound.vue'
 
 import TaskList from '../pages/task/list.vue'
 import TaskEdit from '../pages/task/edit.vue'
+import TaskDependency from '../pages/task/dependency.vue'
 import TaskLog from '../pages/taskLog/list.vue'
 
 import HostList from '../pages/host/list.vue'
@@ -68,6 +69,14 @@ const routes = [
     path: '/task/log',
     name: 'task-log',
     component: TaskLog,
+    meta: {
+      noNeedAdmin: true
+    }
+  },
+  {
+    path: '/task/dependency',
+    name: 'task-dependency',
+    component: TaskDependency,
     meta: {
       noNeedAdmin: true
     }

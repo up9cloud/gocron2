@@ -101,13 +101,17 @@ func Register(m *macaron.Macaron) {
 		m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
 		m.Get("/:id", task.Detail)
 		m.Get("", task.Index)
+		m.Get("/dependency", task.Dependency)
 		m.Get("/log", tasklog.Index)
 		m.Post("/log/clear", tasklog.Clear)
+		m.Post("/log/remove/:id", tasklog.Remove)
+		m.Post("/log/remove/day/:id", tasklog.RemoveDay)
 		m.Post("/log/stop", tasklog.Stop)
 		m.Post("/remove/:id", task.Remove)
 		m.Post("/enable/:id", task.Enable)
 		m.Post("/disable/:id", task.Disable)
 		m.Get("/run/:id", task.Run)
+		m.Get("/tags",task.Tags)
 	})
 
 	// 主机
