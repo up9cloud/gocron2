@@ -11,8 +11,6 @@
   - 修改`定时任务`输入框记录搜索条件
   - 修改`任务日志->清空日志` 由 `DELETE` 改为 `TRUNCATE`
 
-## v1.6.2
-
 - Upgrade to Vue 3
 - Typo fix: creater => creator
 

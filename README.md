@@ -114,6 +114,8 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 
 ## TODO
 
+- [ ] support sqlite3: `https://github.com/ouqiang/gocron/pull/375`
+- [ ] merge `https://github.com/peng49/gocron`
 - [x] 版本升级
 - [x] 批量开启、关闭、删除任务
 - [x] 调度器与任务节点通信支持https
