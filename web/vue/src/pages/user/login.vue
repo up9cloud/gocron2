@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <el-container>
     <el-dialog
       title="用户登录"
       v-model="dialogVisible"
@@ -10,14 +10,14 @@
       <el-form ref="form" :model="form" :rules="formRules" label-width="auto">
         <el-form-item label="用户名" prop="username" >
           <el-col :span="16">
-            <el-input v-model.trim="form.username"
+            <el-input v-model.trim="form.username" @keyup.enter="submit"
                 placeholder="请输入用户名或邮箱">
             </el-input>
           </el-col>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-col :span="16">
-            <el-input v-model.trim="form.password" type="password" placeholder="请输入密码"></el-input>
+            <el-input v-model.trim="form.password" type="password" placeholder="请输入密码" @keyup.enter="submit"></el-input>
           </el-col>
         </el-form-item>
       </el-form>
@@ -25,14 +25,12 @@
         <el-button type="primary" @click="submit">登录</el-button>
       </template>
     </el-dialog>
-  </div>
+  </el-container>
 </template>
 
 <script>
 import userService from '../../api/user'
-
 export default {
-  name: 'login',
   data () {
     return {
       form: {

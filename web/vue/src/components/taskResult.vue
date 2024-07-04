@@ -1,5 +1,6 @@
 <template>
   <el-tag :type="type" :effect="effect">{{ text }}</el-tag>
+  <!-- <el-result :icon="type"></el-result> -->
 </template>
 
 <script>
@@ -16,28 +17,27 @@ function parse(row) {
         case 0: return {
             type: 'danger',
             text: '失败',
-            effect: "dark",
+            effect: "light",
         }
         case 1: return {
             type: 'success',
             text: '执行中',
-            effect: 'light',
+            effect: 'plain',
         }
         case 2: return {
             type: 'success',
             text: '成功',
-            effect: "dark",
+            effect: "light",
         }
         case 3: return {
             type: 'info',
             text: '取消',
-            effect: "dark",
+            effect: "light",
         }
         default: return defaultValue
     }
 }
 export default {
-  name: 'task-result',
   props: {
     modelValue: {
       type: Object,
@@ -65,3 +65,9 @@ export default {
   }
 }
 </script>
+<style scoped>
+.el-result {
+  --el-result-padding: 0;
+  --el-result-icon-font-size: 75%;
+}
+</style>

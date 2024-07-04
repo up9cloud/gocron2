@@ -1,159 +1,140 @@
 <script setup>
+import appPage from '../../layout/page.vue'
 import taskResult from '../../components/taskResult.vue'
 </script>
 <template>
-  <el-container>
-    <task-sidebar></task-sidebar>
-    <el-main>
-      <el-form :inline="true">
-        <el-row>
-          <el-form-item label="任务ID">
-            <el-input v-model.trim="searchParams.id"></el-input>
-          </el-form-item>
-          <el-form-item label="任务名称">
-            <el-input v-model.trim="searchParams.name"></el-input>
-          </el-form-item>
-          <el-form-item label="执行方式">
-            <el-select v-model.trim="searchParams.protocol">
-              <el-option label="全部" value=""></el-option>
-              <el-option
-                v-for="item in protocolList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="任务节点">
-            <el-select v-model.trim="searchParams.host_id">
-              <el-option label="全部" value=""></el-option>
-              <el-option
-                v-for="item in hosts"
-                :key="item.id"
-                :label="item.alias + ' - ' + item.name + ':' + item.port "
-                :value="item.id">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="状态">
-            <el-select v-model.trim="searchParams.status">
-              <el-option label="全部" value=""></el-option>
-              <el-option
-                v-for="item in statusList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="search()">搜索</el-button>
-          </el-form-item>
-        </el-row>
-      </el-form>
-
-      <el-row type="flex" justify="end">
-        <el-col :span="2">
-          <el-button type="primary" @click="toEdit(null)" v-if="$store.getters.user.isAdmin">新增</el-button>
-        </el-col>
-        <el-col :span="2">
-          <el-button type="info" @click="refresh">刷新</el-button>
-        </el-col>
+  <appPage>
+    <el-form :inline="true">
+      <el-row>
+        <el-form-item label="任务ID">
+          <el-input v-model.trim="searchParams.id"></el-input>
+        </el-form-item>
+        <el-form-item label="任务名称">
+          <el-input v-model.trim="searchParams.name"></el-input>
+        </el-form-item>
+        <el-form-item label="执行方式">
+          <el-select v-model.trim="searchParams.protocol" clearable>
+            <el-option
+              v-for="item in protocolList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="任务节点">
+          <el-select v-model.trim="searchParams.host_id" clearable>
+            <el-option
+              v-for="item in hosts"
+              :key="item.id"
+              :label="item.alias + ' - ' + item.name + ':' + item.port "
+              :value="item.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model.trim="searchParams.status" clearable>
+            <el-option
+              v-for="item in statusList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="search()">搜索</el-button>
+        </el-form-item>
       </el-row>
-      <el-divider content-position="left">任务依赖关系</el-divider>
-      <el-table
-        :data="tasks"
-        style="width: 100%;margin-bottom: 20px;"
-        border
-        row-key="id"
-      >
-        <el-table-column
-          prop="id"
-          label="任务ID"
-          sortable>
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="任务名称"
-          sortable>
-        </el-table-column>
+    </el-form>
+    <el-row type="flex" justify="end">
+      <el-col :span="2">
+        <el-button type="primary" @click="toEdit(null)" v-if="$store.getters.user.isAdmin">新增</el-button>
+      </el-col>
+      <el-col :span="2">
+        <el-button type="info" @click="refresh">刷新</el-button>
+      </el-col>
+    </el-row>
+    <el-table :data="tasks" border row-key="id">
+      <el-table-column
+        prop="id"
+        label="任务ID"
+        sortable>
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="任务名称"
+        sortable>
+      </el-table-column>
 
-        <el-table-column
-          prop="tag"
-          label="标签">
-        </el-table-column>
-        <el-table-column
-          prop="spec"
-          label="cron表达式"
-          width="150">
-        </el-table-column>
-        <el-table-column label="下次执行时间" width="170">
-          <template #default="scope">
-            {{$filters.formatTime(scope.row.next_run_time)}}
-          </template>
-        </el-table-column>
-        <el-table-column label="上次时间" width="170">
-          <template #default="scope">
-            {{$filters.formatTime(scope.row.last_run_info.end_time)}}
-          </template>
-        </el-table-column>
-        <el-table-column label="上次结果" width="80">
-          <template #default="scope">
-            <taskResult v-model="scope.row.last_run_info"></taskResult>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="状态" v-if="isAdmin" width="80">
-          <template #default="scope">
-            <el-switch
-              v-if="scope.row.level === 1"
-              v-model="scope.row.status"
-              :active-value="1"
-              :inactive-vlaue="0"
-              active-color="#13ce66"
-              @change="changeStatus(scope.row)"
-              inactive-color="#ff4949">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" v-else width="80">
-          <template #default="scope">
-            <el-switch
-              v-if="scope.row.level === 1"
-              v-model="scope.row.status"
-              :active-value="1"
-              :inactive-vlaue="0"
-              active-color="#13ce66"
-              :disabled="true"
-              inactive-color="#ff4949">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="protocol"
-          :formatter="formatProtocol"
-          label="执行方式" width="80">
-        </el-table-column>
-        <el-table-column label="操作" width="220" v-if="isAdmin">
-          <template #default="scope">
-            <el-button-group>
-              <el-button type="success" size="small" @click="runTask(scope.row)">手动执行</el-button>
-              <el-button type="info" size="small" @click="jumpToLog(scope.row)">查看日志</el-button>
-            </el-button-group>
-          </template>
-        </el-table-column>
-      </el-table>
-
-    </el-main>
-  </el-container>
+      <el-table-column
+        prop="tag"
+        label="标签">
+      </el-table-column>
+      <el-table-column
+        prop="spec"
+        label="cron表达式"
+        width="150">
+      </el-table-column>
+      <el-table-column label="下次执行时间" width="170">
+        <template #default="scope">
+          {{$filters.formatTime(scope.row.next_run_time)}}
+        </template>
+      </el-table-column>
+      <el-table-column label="上次时间" width="170">
+        <template #default="scope">
+          {{$filters.formatTime(scope.row.last_run_info.end_time)}}
+        </template>
+      </el-table-column>
+      <el-table-column label="上次结果" width="80">
+        <template #default="scope">
+          <taskResult v-model="scope.row.last_run_info"></taskResult>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="状态" v-if="isAdmin" width="80">
+        <template #default="scope">
+          <el-switch
+            v-if="scope.row.level === 1"
+            v-model="scope.row.status"
+            :active-value="1"
+            :inactive-vlaue="0"
+            @change="changeStatus(scope.row)">
+          </el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" v-else width="80">
+        <template #default="scope">
+          <el-switch
+            v-if="scope.row.level === 1"
+            v-model="scope.row.status"
+            :active-value="1"
+            :inactive-vlaue="0"
+            :disabled="true">
+          </el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="protocol"
+        :formatter="formatProtocol"
+        label="执行方式" width="80">
+      </el-table-column>
+      <el-table-column label="操作" width="220" v-if="isAdmin">
+        <template #default="scope">
+          <el-button-group>
+            <el-button type="success" size="small" @click="runTask(scope.row)">手动执行</el-button>
+            <el-button type="info" size="small" @click="jumpToLog(scope.row)">查看日志</el-button>
+          </el-button-group>
+        </template>
+      </el-table-column>
+    </el-table>
+  </appPage>
 </template>
 
 <script>
-import taskSidebar from './sidebar.vue'
 import taskService from '../../api/task'
 
 export default {
-  name: 'task-dependency',
   data() {
     return {
       tasks: [],
@@ -192,7 +173,6 @@ export default {
       ]
     }
   },
-  components: {taskSidebar},
   created() {
     const hostId = this.$route.query.host_id
     if (hostId) {
@@ -296,26 +276,3 @@ export default {
   }
 }
 </script>
-<style>
-.custom-tree-node {
-  flex: 1;
-  justify-content: space-between;
-  font-size: 14px;
-}
-</style>
-<style scoped>
-.demo-table-expand {
-  font-size: 0;
-}
-
-.demo-table-expand label {
-  width: 90px;
-  color: #99a9bf;
-}
-
-.demo-table-expand .el-form-item {
-  margin-right: 0;
-  margin-bottom: 0;
-  width: 50%;
-}
-</style>

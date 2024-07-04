@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.6.4
+
+- Dark mode for frondend
+
 ## v1.6.3
 
 - From the repo `https://github.com/ghostong/gocron`

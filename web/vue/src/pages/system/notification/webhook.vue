@@ -1,47 +1,40 @@
+<script setup>
+import appPage from '../../../layout/page.vue'
+</script>
 <template>
-  <el-container>
-    <system-sidebar></system-sidebar>
-    <el-main>
-      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/system' }">系统管理</el-breadcrumb-item>
-        <el-breadcrumb-item>通知配置</el-breadcrumb-item>
-      </el-breadcrumb>
-      <notification-tab></notification-tab>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="auto" style="max-width: 700px;">
-        <el-form-item label="URL" prop="url">
-          <template #label>
-            URL
-            <el-tooltip placement="top-start">
-              <template #content>
-                通知内容推送到指定URL, POST请求, 设置Header [Content-Type: application/json]
-              </template>
-              <el-icon><QuestionFilled /></el-icon>
-            </el-tooltip>
-          </template>
-          <el-input v-model.trim="form.url"></el-input>
-        </el-form-item>
-        <el-form-item label="模板" prop="template">
-          <el-input
-            type="textarea"
-            :rows="10"
-            v-model="form.template">
-          </el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submit()">保存</el-button>
-        </el-form-item>
-      </el-form>
-    </el-main>
-  </el-container>
+  <appPage>
+    <notification-tab></notification-tab>
+    <el-form ref="form" :model="form" :rules="formRules" label-width="auto" style="max-width: 800px;">
+      <el-form-item label="URL" prop="url">
+        <template #label>
+          URL
+          <el-tooltip placement="top-start">
+            <template #content>
+              通知内容推送到指定URL, POST请求, 设置Header [Content-Type: application/json]
+            </template>
+            <el-icon><QuestionFilled /></el-icon>
+          </el-tooltip>
+        </template>
+        <el-input v-model.trim="form.url"></el-input>
+      </el-form-item>
+      <el-form-item label="模板" prop="template">
+        <el-input
+          type="textarea"
+          :rows="10"
+          v-model="form.template">
+        </el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submit()">保存</el-button>
+      </el-form-item>
+    </el-form>
+  </appPage>
 </template>
 
 <script>
-import systemSidebar from '../sidebar.vue'
 import notificationTab from './tab.vue'
 import notificationService from '../../../api/notification'
 export default {
-  name: 'notification-webhook',
   data () {
     return {
       form: {
@@ -58,7 +51,7 @@ export default {
       }
     }
   },
-  components: {notificationTab, systemSidebar},
+  components: {notificationTab},
   created () {
     this.init()
   },

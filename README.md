@@ -107,8 +107,9 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 
 - 安装 Go1.12+, Node.js (Npm), Docker
 - 启动 gocron2, gocron2-node `docker compose up`
-- 启动前端, `make run-vue`, API请求会转发给 gocron2
+- 启动前端, `make run-vue`
   - install 的時候，主机名填入 `db`
+  - API请求預設会转发给 gocron2, 若要代理到遠端伺服器, 需在 `web/vue/.secret.config.js` 檔案加參數, 詳閱 `web/vue/vite.config.js`
 
 `其他指令請詳查 ./makefile`
 
@@ -116,6 +117,7 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 
 - [ ] support sqlite3: `https://github.com/ouqiang/gocron/pull/375`
 - [ ] merge `https://github.com/peng49/gocron`
+- [ ] Fix or remove super admin logic
 - [x] 版本升级
 - [x] 批量开启、关闭、删除任务
 - [x] 调度器与任务节点通信支持https

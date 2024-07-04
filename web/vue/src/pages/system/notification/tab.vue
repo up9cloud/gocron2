@@ -6,21 +6,18 @@
       <el-tab-pane label="Webhook" name="webhook"></el-tab-pane>
     </el-tabs>
     <pre>
-      <code style="color:darkgray">
       通知模板支持的变量：
 
         TaskId   任务ID
         TaskName 任务名称
         Status   任务执行结果状态
         Result   任务执行输出
-      </code>
     </pre>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'notification-tab',
   data () {
     return {
       activeName: ''

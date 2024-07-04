@@ -1,9 +1,9 @@
 import { createStore } from 'vuex'
 import userStorage from '../storage/user'
+import router from '../router/index'
 
 export default createStore({
   state: {
-    hiddenNavMenu: false,
     user: userStorage.get()
   },
   getters: {
@@ -15,12 +15,6 @@ export default createStore({
     }
   },
   mutations: {
-    hiddenNavMenu (state) {
-      state.hiddenNavMenu = true
-    },
-    showNavMenu (state) {
-      state.hiddenNavMenu = false
-    },
     setUser (state, user) {
       userStorage.setToken(user.token)
       userStorage.setUid(user.uid)
@@ -31,6 +25,7 @@ export default createStore({
     logout (state) {
       userStorage.clear()
       state.user = userStorage.get()
+      router.push('/user/login')
     }
   }
 })

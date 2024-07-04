@@ -1,12 +1,14 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import { createApp } from 'vue'
-import ElementPlus, { ElMessageBox } from 'element-plus'
+import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import 'element-plus/theme-chalk/dark/css-vars.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import store from './store/index'
 import router from './router/index'
+import i18n from './i18n/index'
 
 const app = createApp(App)
 app.directive('focus', {
@@ -47,6 +49,7 @@ app.config.globalProperties.$appConfirm = function (callback) {
 }
 app.use(store)
 app.use(router)
+app.use(i18n)
 app.use(ElementPlus)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)

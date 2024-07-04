@@ -1,53 +1,45 @@
+<script setup>
+import appPage from '../../layout/page.vue'
+</script>
 <template>
-  <el-container>
-    <host-sidebar></host-sidebar>
-    <el-main>
-      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
-          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '/host' }">任务节点</el-breadcrumb-item>
-          <el-breadcrumb-item>编辑</el-breadcrumb-item>
-      </el-breadcrumb>
-      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="auto">
-        <el-row>
-          <el-col :span="8">
-            <el-input v-model="form.id" type="hidden"></el-input>
-            <el-form-item label="节点名" prop="alias">
-              <el-input v-model="form.alias"></el-input>
-            </el-form-item>
-            <el-form-item label="主机名" prop="name">
-              <el-input v-model="form.name"></el-input>
-            </el-form-item>
-            <el-form-item label="端口号" prop="port">
-              <el-input v-model.number="form.port"></el-input>
-            </el-form-item>
-            <el-form-item label="备注">
-              <el-input
-                type="textarea"
-                :rows="5"
-                width="100"
-                v-model="form.remark">
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="submit()">保存</el-button>
-              <el-button @click="cancel">取消</el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-    </el-main>
-  </el-container>
+  <appPage>
+    <el-form ref="form" :model="form" :rules="formRules" label-width="auto">
+      <el-row>
+        <el-col :span="8">
+          <el-input v-model="form.id" type="hidden"></el-input>
+          <el-form-item label="节点名" prop="alias">
+            <el-input v-model="form.alias"></el-input>
+          </el-form-item>
+          <el-form-item label="主机名" prop="name">
+            <el-input v-model="form.name"></el-input>
+          </el-form-item>
+          <el-form-item label="端口号" prop="port">
+            <el-input v-model.number="form.port"></el-input>
+          </el-form-item>
+          <el-form-item label="备注" prop="remark">
+            <el-input
+              type="textarea"
+              :rows="5"
+              v-model="form.remark">
+            </el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submit()">保存</el-button>
+            <el-button @click="cancel">取消</el-button>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+  </appPage>
 </template>
 
 <script>
-import hostSidebar from './sidebar.vue'
 import hostService from '../../api/host'
 export default {
-  name: 'edit',
   data: function () {
     return {
       form: {
-        id: '',
+        id: -1,
         name: '',
         port: 5921,
         alias: '',
@@ -67,7 +59,6 @@ export default {
       }
     }
   },
-  components: {hostSidebar},
   created () {
     const id = this.$route.params.id
     if (!id) {

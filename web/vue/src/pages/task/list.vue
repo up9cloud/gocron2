@@ -1,13 +1,9 @@
+<script setup>
+import appPage from '../../layout/page.vue'
+</script>
 <template>
-<el-container>
-  <task-sidebar></task-sidebar>
-  <el-main>
-    <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/task' }">任务管理</el-breadcrumb-item>
-      <el-breadcrumb-item>定时任务</el-breadcrumb-item>
-    </el-breadcrumb>
-    <el-form :inline="true" label-width="auto">
+  <appPage>
+    <el-form :inline="true">
       <el-row>
         <el-form-item>
           <el-input placeholder="请输入任务ID" v-model.trim="searchParams.id"></el-input>
@@ -22,8 +18,7 @@
           <el-input placeholder="请输入标签" v-model.trim="searchParams.tag"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-select v-model.trim="searchParams.protocol" placeholder="请选择执行方式" style="width: 192px">
-            <el-option value=""></el-option>
+          <el-select v-model.trim="searchParams.protocol" placeholder="请选择执行方式" clearable>
             <el-option
               v-for="item in protocolList"
               :key="item.value"
@@ -32,9 +27,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="任务节点">
-          <el-select v-model.trim="searchParams.host_id" clearable placeholder="请选择">
-            <el-option label="全部" value=""></el-option>
+        <el-form-item>
+          <el-select v-model.trim="searchParams.host_id" placeholder="请选择任务节点" clearable>
             <el-option
               v-for="item in hosts"
               :key="item.id"
@@ -43,9 +37,8 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model.trim="searchParams.status" placeholder="请选择" clearable>
-            <el-option label="全部" value=""></el-option>
+        <el-form-item>
+          <el-select v-model.trim="searchParams.status" placeholder="请选择状态" clearable>
             <el-option
               v-for="item in statusList"
               :key="item.value"
@@ -65,80 +58,82 @@
       <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
     </el-row>
     <el-container>
-      <el-table
-        :data="tasks"
-        tooltip-effect="dark"
-        border
-        show-header
-        style="margin: 20px 0;">
+      <el-table :data="tasks" border row-key="id">
         <el-table-column type="expand">
           <template #default="scope">
-            <el-form inline class="demo-table-expand" label-width="auto" label-position="left">
-              <el-form-item label="任务创建时间:">
+            <el-descriptions border>
+              <el-descriptions-item>
+                <template #label>任务创建时间</template>
                 {{$filters.formatTime(scope.row.created)}}
-              </el-form-item>
-              <el-form-item label="任务类型:">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>任务类型</template>
                 {{formatLevel(scope.row.level)}}
-              </el-form-item>
-              <el-form-item label="单实例运行:">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>单实例运行</template>
                 {{formatMulti(scope.row.multi)}}
-              </el-form-item>
-              <el-form-item label="超时时间:">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>超时时间</template>
                 {{formatTimeout(scope.row.timeout)}}
-              </el-form-item>
-              <el-form-item label="重试次数:">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>重试次数</template>
                 {{scope.row.retry_times}}
-              </el-form-item>
-              <el-form-item label="重试间隔:">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>重试间隔</template>
                 {{formatRetryTimesInterval(scope.row.retry_interval)}}
-              </el-form-item>
-              <el-form-item label="任务节点">
-                <div v-for="item in scope.row.hosts" :key="item.host_id">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>任务节点</template>
+                <el-tag v-for="item in scope.row.hosts" :key="item.host_id">
                   {{item.alias}} - {{item.name}}:{{item.port}}
-                </div>
-              </el-form-item>
-              <el-form-item label="命令:">
+                </el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>命令</template>
                 <el-input
                   v-model="scope.row.command"
                   type="textarea"
-                  width="100"
                   disabled
                   autosize
                 />
-              </el-form-item>
-              <el-form-item label="备注">
+              </el-descriptions-item>
+              <el-descriptions-item>
+                <template #label>备注</template>
                 <el-input
                   v-model="scope.row.remark"
                   type="textarea"
-                  width="100"
                   disabled
                   autosize
                 />
-              </el-form-item>
-            </el-form>
+              </el-descriptions-item>
+            </el-descriptions>
           </template>
         </el-table-column>
         <el-table-column
           prop="id"
-          label="任务ID" width="100">
+          label="任务ID" min-width="60">
         </el-table-column>
         <el-table-column
           prop="name"
-          label="任务名称" style="width: 30%">
+          label="任务名称" min-width="100">
         </el-table-column>
         <el-table-column
           prop="tag"
-          label="标签" width="200">
+          label="标签">
           <template #default="scope">
-            <el-button size="small" class="box-shadow-not" type="success" plain @click="toTasksByTag(scope.row)" v-if="scope.row.tag">{{scope.row.tag}}</el-button>
+            <el-button size="small" type="success" plain @click="toTasksByTag(scope.row)" v-if="scope.row.tag">{{scope.row.tag}}</el-button>
           </template>
         </el-table-column>
         <el-table-column
           prop="spec"
           label="cron表达式"
-        width="200">
+          width="120">
         </el-table-column>
-        <el-table-column label="下次执行时间" width="200">
+        <el-table-column label="下次执行时间" width="150">
           <template #default="scope">
             {{$filters.formatTime(scope.row.next_run_time)}}
           </template>
@@ -146,20 +141,18 @@
         <el-table-column
           prop="protocol"
           :formatter="formatProtocol"
-          label="执行方式" width="100">
+          label="执行方式" width="80">
         </el-table-column>
         <el-table-column
-          label="状态" width="100" v-if="isAdmin" >
+          label="状态" width="80" v-if="isAdmin" >
             <template #default="scope">
               <el-switch
                 v-if="scope.row.level === 1"
                 v-model="scope.row.status"
                 :active-value="1"
                 :inactive-value="0"
-                active-color="#13ce66"
                 @change="changeStatus(scope.row)"
-                :disabled="!checkAuth(scope.row)"
-                inactive-color="#ff4949">
+                :disabled="!checkAuth(scope.row)">
               </el-switch>
             </template>
         </el-table-column>
@@ -170,9 +163,7 @@
               v-model="scope.row.status"
               :active-value="1"
               :inactive-value="0"
-              active-color="#13ce66"
-              :disabled="true"
-              inactive-color="#ff4949">
+              disabled>
             </el-switch>
           </template>
         </el-table-column>
@@ -180,7 +171,7 @@
           align="center"
           header-align="left"
           label="操作"
-          width="180"
+          width="150"
           v-if="isAdmin">
           <template #default="scope">
             <el-button-group>
@@ -205,16 +196,13 @@
         @next-click="changePage">
       </el-pagination>
     </el-row>
-  </el-main>
-</el-container>
+  </appPage>
 </template>
 
 <script>
-import taskSidebar from './sidebar.vue'
 import taskService from '../../api/task'
 
 export default {
-  name: 'task-list',
   data () {
     return {
       tasks: [],
@@ -255,7 +243,6 @@ export default {
       ]
     }
   },
-  components: {taskSidebar},
   created () {
     const hostId = this.$route.query.host_id
     if (hostId) {
@@ -373,17 +360,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .demo-table-expand {
-    font-size: 0;
-  }
-  .demo-table-expand label {
-    width: 90px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
-  }
-</style>

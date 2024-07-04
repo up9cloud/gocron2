@@ -2,33 +2,10 @@ import { createWebHashHistory, createRouter } from 'vue-router'
 
 import store from '../store/index'
 
-import NotFound from '../components/common/notFound.vue'
-
-import TaskList from '../pages/task/list.vue'
-import TaskEdit from '../pages/task/edit.vue'
-import TaskDependency from '../pages/task/dependency.vue'
-import TaskLog from '../pages/taskLog/list.vue'
-
-import HostList from '../pages/host/list.vue'
-import HostEdit from '../pages/host/edit.vue'
-
-import UserList from '../pages/user/list.vue'
-import UserEdit from '../pages/user/edit.vue'
-import UserLogin from '../pages/user/login.vue'
-import UserEditPassword from '../pages/user/editPassword.vue'
-import UserEditMyPassword from '../pages/user/editMyPassword.vue'
-
-import NotificationEmail from '../pages/system/notification/email.vue'
-import NotificationSlack from '../pages/system/notification/slack.vue'
-import NotificationWebhook from '../pages/system/notification/webhook.vue'
-
-import Install from '../pages/install/index.vue'
-import LoginLog from '../pages/system/loginLog.vue'
-
-const routes = [
+export const routes = [
   {
     path: '/:pathMatch(.*)*',
-    component: NotFound,
+    component: () => import('../pages/notFound.vue'),
     meta: {
       noLogin: true,
       noNeedAdmin: true
@@ -41,7 +18,7 @@ const routes = [
   {
     path: '/install',
     name: 'install',
-    component: Install,
+    component: () => import('../pages/install/index.vue'),
     meta: {
       noLogin: true,
       noNeedAdmin: true
@@ -49,8 +26,12 @@ const routes = [
   },
   {
     path: '/task',
-    name: 'task-list',
-    component: TaskList,
+    redirect: '/task/list'
+  },
+  {
+    path: '/task/list',
+    name: 'task--list',
+    component: () => import('../pages/task/list.vue'),
     meta: {
       noNeedAdmin: true
     }
@@ -58,33 +39,43 @@ const routes = [
   {
     path: '/task/create',
     name: 'task-create',
-    component: TaskEdit
+    component: () => import('../pages/task/edit.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/task/edit/:id',
     name: 'task-edit',
-    component: TaskEdit
+    component: () => import('../pages/task/edit.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/task/log',
-    name: 'task-log',
-    component: TaskLog,
+    name: 'task--log',
+    component: () => import('../pages/taskLog/list.vue'),
     meta: {
       noNeedAdmin: true
     }
   },
   {
     path: '/task/dependency',
-    name: 'task-dependency',
-    component: TaskDependency,
+    name: 'task--dependency',
+    component: () => import('../pages/task/dependency.vue'),
     meta: {
       noNeedAdmin: true
     }
   },
   {
     path: '/host',
-    name: 'host-list',
-    component: HostList,
+    redirect: '/host/list'
+  },
+  {
+    path: '/host/list',
+    name: 'host--list',
+    component: () => import('../pages/host/list.vue'),
     meta: {
       noNeedAdmin: true
     }
@@ -92,72 +83,98 @@ const routes = [
   {
     path: '/host/create',
     name: 'host-create',
-    component: HostEdit
+    component: () => import('../pages/host/edit.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/host/edit/:id',
-    name: 'host-edit',
-    component: HostEdit
+    name: 'host--edit--',
+    component: () => import('../pages/host/edit.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/user',
-    name: 'user-list',
-    component: UserList
+    redirect: '/user/list'
+  },
+  {
+    path: '/user/list',
+    name: 'user--list',
+    component: () => import('../pages/user/list.vue')
   },
   {
     path: '/user/create',
     name: 'user-create',
-    component: UserEdit
+    component: () => import('../pages/user/edit.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/user/edit/:id',
     name: 'user-edit',
-    component: UserEdit
+    component: () => import('../pages/user/edit.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/user/login',
     name: 'user-login',
-    component: UserLogin,
+    component: () => import('../pages/user/login.vue'),
     meta: {
-      noLogin: true
+      noLogin: true,
+      inSidebar: false
     }
   },
   {
     path: '/user/edit-password/:id',
     name: 'user-edit-password',
-    component: UserEditPassword
+    component: () => import('../pages/user/editPassword.vue'),
+    meta: {
+      inSidebar: false
+    }
   },
   {
     path: '/user/edit-my-password',
     name: 'user-edit-my-password',
-    component: UserEditMyPassword,
+    component: () => import('../pages/user/editMyPassword.vue'),
     meta: {
-      noNeedAdmin: true
+      noNeedAdmin: true,
+      inSidebar: false
     }
   },
   {
     path: '/system',
-    redirect: '/system/notification/email'
+    redirect: '/system/notification'
+  },
+  {
+    path: '/system/notification',
+    name: 'system--notification',
+    component: () => import('../pages/system/notification/email.vue')
   },
   {
     path: '/system/notification/email',
     name: 'system-notification-email',
-    component: NotificationEmail
+    component: () => import('../pages/system/notification/email.vue')
   },
   {
     path: '/system/notification/slack',
     name: 'system-notification-slack',
-    component: NotificationSlack
+    component: () => import('../pages/system/notification/slack.vue')
   },
   {
     path: '/system/notification/webhook',
     name: 'system-notification-webhook',
-    component: NotificationWebhook
+    component: () => import('../pages/system/notification/webhook.vue')
   },
   {
     path: '/system/login-log',
-    name: 'login-log',
-    component: LoginLog
+    name: 'system--login-log',
+    component: () => import('../pages/system/loginLog.vue')
   }
 ]
 
@@ -184,7 +201,6 @@ router.beforeEach((to, from, next) => {
       return
     }
   }
-
   next({
     path: '/user/login',
     query: {redirect: to.fullPath}

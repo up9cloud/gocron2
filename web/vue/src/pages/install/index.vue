@@ -1,152 +1,148 @@
 <template>
   <el-container>
-    <el-main>
-      <el-form
-        ref="form"
-        :model="form"
-        :rules="formRules"
-        style="max-width: 700px"
-      >
-        <h3>数据库配置</h3>
-        <el-form-item label="数据库选择" prop="db_type" label-width="auto">
-          <el-select v-model.trim="form.db_type" @change="update_port">
-            <el-option
-              v-for="item in dbList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="主机名" prop="db_host">
-              <el-input v-model="form.db_host"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="端口" prop="db_port">
-              <el-input v-model.number="form.db_port"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="用户名" prop="db_username">
-              <el-input v-model="form.db_username"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="密码" prop="db_password">
-              <el-input v-model="form.db_password" type="password"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="数据库名称" prop="db_name">
-              <el-input
-                v-model="form.db_name"
-                placeholder="如果数据库不存在, 需提前创建"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="表前缀" prop="db_table_prefix">
-              <el-input v-model="form.db_table_prefix"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="SSL模式" prop="db_sslmode">
-              <el-input
-                v-model="form.db_sslmode"
-                placeholder=",false,true,skip-verify"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="SSL CA证书" prop="db_ssl_ca_file">
-              <el-input
-                v-model="form.db_ssl_ca_file"
-                placeholder="/app/conf/db.server-ca.pem"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="SSL证书" prop="db_ssl_cert_file">
-              <el-input
-                v-model="form.db_ssl_cert_file"
-                placeholder="/app/conf/db.client-cert.pem"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="SSL私钥" prop="db_ssl_key_file">
-              <el-input
-                v-model="form.db_ssl_key_file"
-                placeholder="/app/conf/db.client-key.pem"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="SSL SN" prop="db_ssl_server_name">
-              <el-input
-                v-model="form.db_ssl_server_name"
-                placeholder="<gcp-project-id>:<cloud-sql-instance>"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <h3>管理员账号配置</h3>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="账号" prop="admin_username">
-              <el-input v-model="form.admin_username"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="admin_email">
-              <el-input v-model="form.admin_email"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="密码" prop="admin_password">
-              <el-input
-                v-model="form.admin_password"
-                type="password"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="确认密码" prop="confirm_admin_password">
-              <el-input
-                v-model="form.confirm_admin_password"
-                type="password"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item>
-          <el-button type="primary" @click="submit()">安装</el-button>
-        </el-form-item>
-      </el-form>
-    </el-main>
+    <el-form
+      ref="form"
+      :model="form"
+      :rules="formRules"
+    >
+      <h3>数据库配置</h3>
+      <el-form-item label="数据库选择" prop="db_type" label-width="auto">
+        <el-select v-model.trim="form.db_type" @change="update_port">
+          <el-option
+            v-for="item in dbList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="主机名" prop="db_host">
+            <el-input v-model="form.db_host"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="端口" prop="db_port">
+            <el-input v-model.number="form.db_port"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="用户名" prop="db_username">
+            <el-input v-model="form.db_username"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="密码" prop="db_password">
+            <el-input v-model="form.db_password" type="password"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="数据库名称" prop="db_name">
+            <el-input
+              v-model="form.db_name"
+              placeholder="如果数据库不存在, 需提前创建"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="表前缀" prop="db_table_prefix">
+            <el-input v-model="form.db_table_prefix"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="SSL模式" prop="db_sslmode">
+            <el-input
+              v-model="form.db_sslmode"
+              placeholder=",false,true,skip-verify"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="SSL CA证书" prop="db_ssl_ca_file">
+            <el-input
+              v-model="form.db_ssl_ca_file"
+              placeholder="/app/conf/db.server-ca.pem"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="SSL证书" prop="db_ssl_cert_file">
+            <el-input
+              v-model="form.db_ssl_cert_file"
+              placeholder="/app/conf/db.client-cert.pem"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="SSL私钥" prop="db_ssl_key_file">
+            <el-input
+              v-model="form.db_ssl_key_file"
+              placeholder="/app/conf/db.client-key.pem"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="SSL SN" prop="db_ssl_server_name">
+            <el-input
+              v-model="form.db_ssl_server_name"
+              placeholder="<gcp-project-id>:<cloud-sql-instance>"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <h3>管理员账号配置</h3>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="账号" prop="admin_username">
+            <el-input v-model="form.admin_username"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="邮箱" prop="admin_email">
+            <el-input v-model="form.admin_email"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="密码" prop="admin_password">
+            <el-input
+              v-model="form.admin_password"
+              type="password"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="确认密码" prop="confirm_admin_password">
+            <el-input
+              v-model="form.confirm_admin_password"
+              type="password"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-form-item>
+        <el-button type="primary" @click="submit()">安装</el-button>
+      </el-form-item>
+    </el-form>
   </el-container>
 </template>
 
 <script>
 import installService from '../../api/install'
 export default {
-  name: 'index',
   data () {
     return {
       form: {

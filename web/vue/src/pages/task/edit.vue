@@ -1,368 +1,356 @@
+<script setup>
+import appPage from '../../layout/page.vue'
+</script>
 <template>
-  <el-container>
-    <task-sidebar></task-sidebar>
-    <el-main>
-      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/task' }">任务管理</el-breadcrumb-item>
-        <el-breadcrumb-item>编辑</el-breadcrumb-item>
-     </el-breadcrumb>
-      <el-form ref="form" class="page-form" :model="form" :rules="formRules" label-width="auto">
-        <el-input v-model="form.id" type="hidden"></el-input>
-        <el-row>
-          <el-col :span="16">
-            <el-form-item label="任务名称" prop="name">
-              <el-input v-model.trim="form.name"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="任务类型">
-              <template #label>
-                任务类型
-                <el-tooltip placement="top">
-                  <template #content>
-                    主任务可以配置多个子任务,
-                    当主任务执行完成后，自动执行子任务，任务类型新增后不能变更
-                  </template>
-                  <el-icon><QuestionFilled /></el-icon>
-                </el-tooltip>
-              </template>
-              <el-select v-model.trim="form.level" :disabled="form.id !== ''">
-                <el-option
-                  v-for="item in levelList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8" v-if="form.level === 1">
-            <el-form-item label="依赖关系">
-              <template #label>
-                依赖关系
-                <el-tooltip placement="top">
-                  <template #content>
-                    强依赖: 主任务执行成功，才会运行子任务<br />
-                    弱依赖: 无论主任务执行是否成功，都会运行子任务
-                  </template>
-                  <el-icon><QuestionFilled /></el-icon>
-                </el-tooltip>
-              </template>
-              <el-select v-model.trim="form.dependency_status">
-                <el-option
-                  v-for="item in dependencyStatusList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="16">
-            <el-form-item label="标签">
-              <el-input
-                v-model.trim="form.tag"
-                placeholder="通过标签将任务分组"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="16">
-            <el-form-item label="子任务ID">
-              <el-input
-                v-model.trim="form.dependency_task_id"
-                placeholder="多个ID逗号分隔"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row v-if="form.level === 1">
-          <el-col :span="16">
-            <el-form-item label="crontab表达式" prop="spec">
-              <el-input
-                v-model.trim="form.spec"
-                placeholder="秒 分 时 天 月 周"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-icon color="#909399"><Clock /></el-icon>
-            <template v-for="(item, index) in specOptions":key="index">
-              <el-button
-                size="small"
-                style="color: #909399;"
-                class="box-shadow-not"
-                @click="specSelect(item.value)"
-              >{{ item.label }}</el-button>
+  <appPage>
+    <el-form ref="form" :model="form" :rules="formRules" label-width="auto">
+      <el-input v-model="form.id" type="hidden"></el-input>
+      <el-row>
+        <el-col :span="16">
+          <el-form-item label="任务名称" prop="name">
+            <el-input v-model.trim="form.name"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="任务类型">
+            <template #label>
+              任务类型
+              <el-tooltip placement="top">
+                <template #content>
+                  主任务可以配置多个子任务,
+                  当主任务执行完成后，自动执行子任务，任务类型新增后不能变更
+                </template>
+                <el-icon><QuestionFilled /></el-icon>
+              </el-tooltip>
             </template>
-            <el-tooltip placement="right">
-              <template #content>
-                https://pkg.go.dev/github.com/robfig/cron#hdr-Predefined_schedules
-              </template>
-              <el-icon><QuestionFilled /></el-icon>
-            </el-tooltip>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="执行方式">
-              <el-select v-model.trim="form.protocol">
-                <el-option
-                  v-for="item in protocolList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8" v-if="form.protocol === 1">
-            <el-form-item label="请求方法">
-              <el-select key="http-method" v-model.trim="form.http_method">
-                <el-option
-                  v-for="item in httpMethods"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-           <el-col :span="8" v-else>
-            <el-form-item label="任务节点">
-              <el-select
-                key="shell"
-                v-model="selectedHosts"
-                filterable
-                multiple
-                placeholder="请选择"
+            <el-select v-model.trim="form.level" :disabled="form.id !== ''">
+              <el-option
+                v-for="item in levelList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               >
-                <el-option
-                  v-for="item in hosts"
-                  :key="item.id"
-                  :label="item.alias + ' - ' + item.name"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="单实例运行">
-              <template #label>
-                单实例运行
-                <el-tooltip placement="top">
-                  <template #content>
-                    单实例运行,
-                    前次任务未执行完成，下次任务调度时间到了是否要执行,
-                    即是否允许多进程执行同一任务
-                  </template>
-                  <el-icon><QuestionFilled /></el-icon>
-                </el-tooltip>
-              </template>
-              <el-select v-model.trim="form.multi">
-                <el-option
-                  v-for="item in runStatusList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15">
-            <el-form-item label="命令" prop="command">
-              <el-input
-                type="textarea"
-                :rows="5"
-                width="100"
-                :placeholder="commandPlaceholder"
-                v-model="form.command"
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8" v-if="form.level === 1">
+          <el-form-item label="依赖关系">
+            <template #label>
+              依赖关系
+              <el-tooltip placement="top">
+                <template #content>
+                  <pre>{{$t('task.level.tooltip')}}</pre>
+                </template>
+                <el-icon><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </template>
+            <el-select v-model.trim="form.dependency_status">
+              <el-option
+                v-for="item in dependencyStatusList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               >
-              </el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15">
-            <el-form-item label="任务超时时间" prop="timeout">
-              <template #label>
-                任务超时时间
-                <el-tooltip placement="top">
-                  <template #content>
-                    任务执行超时强制结束, 取值0-86400(秒), 默认0, 不限制
-                  </template>
-                  <el-icon><QuestionFilled /></el-icon>
-                </el-tooltip>
-              </template>
-              <el-input v-model.number.trim="form.timeout"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15">
-            <el-form-item label="任务失败重试次数" prop="retry_times">
-              <el-input
-                v-model.number.trim="form.retry_times"
-                placeholder="0 - 10, 默认0，不重试"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="15">
-            <el-form-item label="任务失败重试间隔时间" prop="retry_interval">
-              <el-input
-                v-model.number.trim="form.retry_interval"
-                placeholder="0 - 3600 (秒), 默认0，执行系统默认策略"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15">
-            <el-form-item label="状态">
-              <el-switch
-                v-model="form.status"
-                :active-value="1"
-                :inactive-value="0"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="16">
+          <el-form-item label="标签">
+            <el-input
+              v-model.trim="form.tag"
+              placeholder="通过标签将任务分组"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="16">
+          <el-form-item label="子任务ID">
+            <el-input
+              v-model.trim="form.dependency_task_id"
+              placeholder="多个ID逗号分隔"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="form.level === 1">
+        <el-col :span="16">
+          <el-form-item label="crontab表达式" prop="spec">
+            <el-input
+              v-model.trim="form.spec"
+              placeholder="秒 分 时 天 月 周"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
+          <el-icon><Clock /></el-icon>
+          <template v-for="(item, index) in specOptions":key="index">
+            <el-button
+              size="small"
+              @click="specSelect(item.value)"
+            >{{ item.label }}</el-button>
+          </template>
+          <el-tooltip placement="right">
+            <template #content>
+              https://pkg.go.dev/github.com/robfig/cron#hdr-Predefined_schedules
+            </template>
+            <el-icon><QuestionFilled /></el-icon>
+          </el-tooltip>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="执行方式">
+            <el-select v-model.trim="form.protocol">
+              <el-option
+                v-for="item in protocolList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               >
-              </el-switch>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8">
-            <el-form-item label="任务通知">
-              <el-select v-model.trim="form.notify_status">
-                <el-option
-                  v-for="item in notifyStatusList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8" v-if="form.notify_status !== 1">
-            <el-form-item label="通知类型">
-              <el-select v-model.trim="form.notify_type">
-                <el-option
-                  v-for="item in notifyTypes"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col
-            :span="8"
-            v-if="form.notify_status !== 1 && form.notify_type === 2"
-          >
-            <el-form-item label="接收用户">
-              <el-select
-                key="notify-mail"
-                v-model="selectedMailNotifyIds"
-                filterable
-                multiple
-                placeholder="请选择"
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8" v-if="form.protocol === 1">
+          <el-form-item label="请求方法">
+            <el-select key="http-method" v-model.trim="form.http_method">
+              <el-option
+                v-for="item in httpMethods"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               >
-                <el-option
-                  v-for="item in mailUsers"
-                  :key="item.id"
-                  :label="item.username"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+          <el-col :span="8" v-else>
+          <el-form-item label="任务节点">
+            <el-select
+              key="shell"
+              v-model="selectedHosts"
+              filterable
+              multiple
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in hosts"
+                :key="item.id"
+                :label="item.alias + ' - ' + item.name"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="单实例运行">
+            <template #label>
+              单实例运行
+              <el-tooltip placement="top">
+                <template #content>
+                  单实例运行,
+                  前次任务未执行完成，下次任务调度时间到了是否要执行,
+                  即是否允许多进程执行同一任务
+                </template>
+                <el-icon><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </template>
+            <el-select v-model.trim="form.multi">
+              <el-option
+                v-for="item in runStatusList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="15">
+          <el-form-item label="命令" prop="command">
+            <el-input
+              type="textarea"
+              :rows="5"
+              width="100"
+              :placeholder="commandPlaceholder"
+              v-model="form.command"
+            >
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="15">
+          <el-form-item label="任务超时时间" prop="timeout">
+            <template #label>
+              任务超时时间
+              <el-tooltip placement="top">
+                <template #content>
+                  任务执行超时强制结束, 取值0-86400(秒), 默认0, 不限制
+                </template>
+                <el-icon><QuestionFilled /></el-icon>
+              </el-tooltip>
+            </template>
+            <el-input v-model.number.trim="form.timeout"></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="15">
+          <el-form-item label="任务失败重试次数" prop="retry_times">
+            <el-input
+              v-model.number.trim="form.retry_times"
+              placeholder="0 - 10, 默认0，不重试"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="15">
+          <el-form-item label="任务失败重试间隔时间" prop="retry_interval">
+            <el-input
+              v-model.number.trim="form.retry_interval"
+              placeholder="0 - 3600 (秒), 默认0，执行系统默认策略"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="15">
+          <el-form-item label="状态">
+            <el-switch
+              v-model="form.status"
+              :active-value="1"
+              :inactive-value="0"
+            >
+            </el-switch>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="8">
+          <el-form-item label="任务通知">
+            <el-select v-model.trim="form.notify_status">
+              <el-option
+                v-for="item in notifyStatusList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8" v-if="form.notify_status !== 1">
+          <el-form-item label="通知类型">
+            <el-select v-model.trim="form.notify_type">
+              <el-option
+                v-for="item in notifyTypes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col
+          :span="8"
+          v-if="form.notify_status !== 1 && form.notify_type === 2"
+        >
+          <el-form-item label="接收用户">
+            <el-select
+              key="notify-mail"
+              v-model="selectedMailNotifyIds"
+              filterable
+              multiple
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in mailUsers"
+                :key="item.id"
+                :label="item.username"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
 
-          <el-col
-            :span="8"
-            v-if="form.notify_status !== 1 && form.notify_type === 3"
-          >
-            <el-form-item label="发送Channel">
-              <el-select
-                key="notify-slack"
-                v-model="selectedSlackNotifyIds"
-                filterable
-                multiple
-                placeholder="请选择"
+        <el-col
+          :span="8"
+          v-if="form.notify_status !== 1 && form.notify_type === 3"
+        >
+          <el-form-item label="发送Channel">
+            <el-select
+              key="notify-slack"
+              v-model="selectedSlackNotifyIds"
+              filterable
+              multiple
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in slackChannels"
+                :key="item.id"
+                :label="item.name"
+                selected="true"
+                :value="item.id"
               >
-                <el-option
-                  v-for="item in slackChannels"
-                  :key="item.id"
-                  :label="item.name"
-                  selected="true"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row v-if="form.notify_status === 4">
-          <el-col :span="15">
-            <el-form-item label="任务执行输出关键字" prop="notify_keyword">
-              <el-input
-                v-model.trim="form.notify_keyword"
-                placeholder="任务执行输出中包含此关键字将触发通知"
-              ></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="15">
-            <el-form-item label="备注">
-              <el-input
-                type="textarea"
-                :rows="3"
-                width="100"
-                v-model="form.remark"
-              >
-              </el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item>
-          <el-button type="primary" @click="submit">保存</el-button>
-          <el-button @click="cancel">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </el-main>
-  </el-container>
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row v-if="form.notify_status === 4">
+        <el-col :span="15">
+          <el-form-item label="任务执行输出关键字" prop="notify_keyword">
+            <el-input
+              v-model.trim="form.notify_keyword"
+              placeholder="任务执行输出中包含此关键字将触发通知"
+            ></el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-col :span="15">
+          <el-form-item label="备注">
+            <el-input
+              type="textarea"
+              :rows="3"
+              width="100"
+              v-model="form.remark"
+            >
+            </el-input>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-form-item>
+        <el-button type="primary" @click="submit">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
+      </el-form-item>
+    </el-form>
+  </appPage>
 </template>
 
 <script>
-import taskSidebar from './sidebar.vue'
 import taskService from '../../api/task'
 import notificationService from '../../api/notification'
 
 export default {
-  name: 'task-edit',
   data () {
     return {
       form: {
@@ -559,7 +547,6 @@ export default {
       return '请输入shell命令'
     }
   },
-  components: {taskSidebar},
   created () {
     const id = this.$route.params.id
 

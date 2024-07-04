@@ -253,7 +253,10 @@ func (migration *Migration) upgradeFor155(session *xorm.Session) error {
 	tableName := TablePrefix + "task"
 	// task表增加 updated, creater updater 字段
 	_, err := session.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN updated datetime DEFAULT CURRENT_TIMESTAMP NOT NULL, ADD COLUMN creater int NOT NULL DEFAULT 0, ADD COLUMN updater int NOT NULL DEFAULT 0", tableName))
-
+	if err != nil {
+		return err
+	}
+	_, err = session.Exec("UPDATE ? SET is_admin = ?", TablePrefix + "user", 2)
 	if err == nil {
 		logger.Info("已升级到v1.5.5\n")
 	}

@@ -1,10 +1,9 @@
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElLoading } from 'element-plus'
 import router from '../router/index'
 import store from '../store/index'
 import Qs from 'qs'
 
-const errorMessage = '加载失败, 请稍后再试'
 // 成功状态码
 const SUCCESS_CODE = 0
 // 认证失败
@@ -15,23 +14,38 @@ const APP_NOT_INSTALL_CODE = 801
 axios.defaults.baseURL = 'api'
 axios.defaults.timeout = 10000
 axios.defaults.responseType = 'json'
+
+// let loading
+// let count = 0
 axios.interceptors.request.use(config => {
   config.headers['Auth-Token'] = store.getters.user.token
+  // count++
+  // if (!loading) {
+  //   loading = ElLoading.service({
+  //     lock: true,
+  //   })
+  // }
   return config
 }, error => {
-  ElMessage({ message: errorMessage })
   return Promise.reject(error)
 })
 axios.interceptors.response.use(data => {
   return data
 }, error => {
-  ElMessage({ message: errorMessage })
   return Promise.reject(error)
 })
 
 function handle (promise, next) {
-  promise.then((res) => successCallback(res, next))
+  promise
+    .then((res) => successCallback(res, next))
     .catch((error) => failureCallback(error))
+    // .finally(() => {
+    //   count--
+    //   if (count === 0 && loading) {
+    //     loading.close()
+    //     loading = null
+    //   }
+    // })
 }
 
 function checkResponseCode (code, msg) {
@@ -44,12 +58,12 @@ function checkResponseCode (code, msg) {
     case AUTH_ERROR_CODE:
       router.push('/user/login')
       return false
+    case SUCCESS_CODE:
+      return true
+    default:
+      ElMessage({ message: msg })
+      return false
   }
-  if (code !== SUCCESS_CODE) {
-    ElMessage({ message: msg })
-    return false
-  }
-  return true
 }
 
 function successCallback (res, next) {
@@ -64,6 +78,7 @@ function successCallback (res, next) {
 
 function failureCallback (error) {
   ElMessage({
+    showClose: true,
     message: '请求失败 - ' + error,
     type: 'error'
   })
@@ -85,16 +100,25 @@ export default {
       requests.push(axios.get(item.uri, {params}))
     }
 
-    axios.all(requests).then(axios.spread(function (...res) {
-      const result = []
-      for (let item of res) {
-        if (!checkResponseCode(item.data.code, item.data.message)) {
-          return
+    axios.all(requests)
+      .then(axios.spread(function (...res) {
+        const result = []
+        for (let item of res) {
+          if (!checkResponseCode(item.data.code, item.data.message)) {
+            return
+          }
+          result.push(item.data.data)
         }
-        result.push(item.data.data)
-      }
-      next(...result)
-    })).catch((error) => failureCallback(error))
+        next(...result)
+      }))
+      .catch((error) => failureCallback(error))
+      // .finally(() => {
+      //   count = count - requests.length
+      //   if (count === 0 && loading) {
+      //     loading.close()
+      //     loading = null
+      //   }
+      // })
   },
 
   post (uri, data, next) {

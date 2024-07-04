@@ -1,89 +1,75 @@
+<script setup>
+import appPage from '../../layout/page.vue'
+</script>
 <template>
-  <el-container>
-    <user-sidebar></user-sidebar>
-    <el-main>
-      <el-breadcrumb separator-icon="ArrowRight" style="margin-bottom:20px">
-          <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '/user' }">用户管理</el-breadcrumb-item>
-          <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-      </el-breadcrumb>
-      <el-row type="flex" justify="end">
-        <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="$store.getters.user.isSuperAdmin">新增</el-button>
-        <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
-      </el-row>
+  <appPage>
+    <el-row type="flex" justify="end">
+      <el-button type="primary" icon="Edit" @click="toEdit(null)" v-if="$store.getters.user.isSuperAdmin">新增</el-button>
+      <el-button type="info" icon="Refresh" @click="refresh">刷新</el-button>
+    </el-row>
+    <el-table :data="users" border row-key="id">
+      <el-table-column
+        prop="id"
+        label="用户id"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="用户名">
+      </el-table-column>
+      <el-table-column
+        prop="email"
+        label="邮箱">
+      </el-table-column>
+      <el-table-column
+        prop="is_admin"
+        :formatter="formatRole"
+        label="角色">
+      </el-table-column>
+      <el-table-column
+        label="状态">
+        <template #default="scope">
+          <el-switch
+            v-model="scope.row.status"
+            :active-value="1"
+            :inactive-value="0"
+            @change="changeStatus(scope.row)">
+          </el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column
+        align="center"
+        header-align="left"
+        label="操作"
+        v-if="isSuperAdmin">
+        <template #default="scope">
+          <el-button-group>
+            <el-button size="small" type="primary" @click="toEdit(scope.row)">编辑</el-button>
+            <el-button size="small" type="success" @click="editPassword(scope.row)">修改密码</el-button>
+            <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
+          </el-button-group>
+        </template>
+      </el-table-column>
+    </el-table>
 
-      <el-table
-        :data="users"
-        tooltip-effect="dark"
-        border
-        style="margin: 20px 0;">
-        <el-table-column
-          prop="id"
-          label="用户id"
-          width="100">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="用户名">
-        </el-table-column>
-        <el-table-column
-          prop="email"
-          label="邮箱">
-        </el-table-column>
-        <el-table-column
-          prop="is_admin"
-          :formatter="formatRole"
-          label="角色">
-        </el-table-column>
-        <el-table-column
-          label="状态">
-          <template #default="scope">
-            <el-switch
-              v-model="scope.row.status"
-              :active-value="1"
-              :inactive-value="0"
-              active-color="#13ce66"
-              @change="changeStatus(scope.row)"
-              inactive-color="#ff4949">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          header-align="left"
-          label="操作"
-          v-if="isSuperAdmin">
-          <template #default="scope">
-            <el-button-group>
-              <el-button size="small" type="primary" @click="toEdit(scope.row)">编辑</el-button>
-              <el-button size="small" type="success" @click="editPassword(scope.row)">修改密码</el-button>
-              <el-button size="small" type="danger" @click="remove(scope.row)">删除</el-button>
-            </el-button-group>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-row type="flex" justify="end">
-        <el-pagination
-          background
-          layout="prev, pager, next, sizes, total"
-          :total="userTotal"
-          :page-size="20"
-          @size-change="changePageSize"
-          @current-change="changePage"
-          @prev-click="changePage"
-          @next-click="changePage">
-        </el-pagination>
-      </el-row>
-    </el-main>
-  </el-container>
+    <el-row type="flex" justify="end">
+      <el-pagination
+        background
+        layout="prev, pager, next, sizes, total"
+        :total="userTotal"
+        :page-size="20"
+        @size-change="changePageSize"
+        @current-change="changePage"
+        @prev-click="changePage"
+        @next-click="changePage">
+      </el-pagination>
+    </el-row>
+  </appPage>
 </template>
 
 <script>
-import userSidebar from './sidebar.vue'
 import userService from '../../api/user'
 export default {
-  name: 'user-list',
   data () {
     return {
       users: [],
@@ -95,7 +81,6 @@ export default {
       isSuperAdmin: this.$store.getters.user.isSuperAdmin
     }
   },
-  components: {userSidebar},
   created () {
     this.search()
   },

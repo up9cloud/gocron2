@@ -146,20 +146,19 @@ func (task *Task) ActiveList(page, pageSize int) ([]Task, error) {
 func (task *Task) ActiveListByHostId(hostId int16) ([]Task, error) {
 	taskHostModel := new(TaskHost)
 	taskIds, err := taskHostModel.GetTaskIdsByHostId(hostId)
+	list := make([]Task, 0)
 	if err != nil {
-		return nil, err
+		return list, err
 	}
 	if len(taskIds) == 0 {
-		return nil, nil
+		return list, nil
 	}
-	list := make([]Task, 0)
 	err = Db.Where("status = ?  AND level = ?", Enabled, TaskLevelParent).
 		In("id", taskIds...).
 		Find(&list)
 	if err != nil {
 		return list, err
 	}
-
 	return task.setHostsForTasks(list)
 }
 
@@ -169,11 +168,10 @@ func (task *Task) setHostsForTasks(tasks []Task) ([]Task, error) {
 	for i, value := range tasks {
 		taskHostDetails, err := taskHostModel.GetHostIdsByTaskId(value.Id)
 		if err != nil {
-			return nil, err
+			return tasks, err
 		}
 		tasks[i].Hosts = taskHostDetails
 	}
-
 	return tasks, err
 }
 
@@ -246,7 +244,7 @@ func (task *Task) List(params CommonMap) ([]Task, error) {
 	err := session.GroupBy("t.id").Desc("t.id").Cols("t.*").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
 	if err != nil {
-		return nil, err
+		return list, err
 	}
 
 	list = task.setLastRunInfo(list)
@@ -263,7 +261,7 @@ func (task *Task) DependencyList(params CommonMap) ([]Task, error) {
 	err := session.GroupBy("t.id").Desc("t.id").Cols("t.*").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
 	if err != nil {
-		return nil, err
+		return list, err
 	}
 
 	list, _ = task.setChildrenForTask(list)
