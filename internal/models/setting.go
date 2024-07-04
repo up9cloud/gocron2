@@ -1,8 +1,8 @@
 package models
 
 import (
-	"strings"
 	"encoding/json"
+	"strings"
 )
 
 type Setting struct {

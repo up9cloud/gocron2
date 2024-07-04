@@ -1,6 +1,7 @@
 package setting
 
 import (
+	_ "embed"
 	"errors"
 
 	"github.com/up9cloud/gocron2/internal/modules/logger"
@@ -29,11 +30,12 @@ type Setting struct {
 		SslKeyFile    string
 		SslServerName string
 	}
-	AllowIps      string
-	AppName       string
-	ApiKey        string
-	ApiSecret     string
-	ApiSignEnable bool
+	AllowIps             string
+	AllowLocalhostBypass bool
+	AppName              string
+	ApiKey               string
+	ApiSecret            string
+	ApiSignEnable        bool
 
 	EnableTLS bool
 	CAFile    string
@@ -72,6 +74,7 @@ func Read(filename string) (*Setting, error) {
 	s.Db.SslServerName = section.Key("db.ssl_server_name").MustString("")
 
 	s.AllowIps = section.Key("allow_ips").MustString("")
+	s.AllowLocalhostBypass = section.Key("allow_localhost_bypass").MustBool(false)
 	s.AppName = section.Key("app.name").MustString("定时任务管理系统")
 	s.ApiKey = section.Key("api.key").MustString("")
 	s.ApiSecret = section.Key("api.secret").MustString("")
@@ -105,28 +108,34 @@ func Read(filename string) (*Setting, error) {
 }
 
 // 写入配置
-func Write(config []string, filename string) error {
-	if len(config) == 0 {
+//go:embed app.ini
+var defaultConfig []byte
+
+func Write(rawConfig []string, filename string) error {
+	if len(rawConfig) == 0 {
 		return errors.New("参数不能为空")
 	}
-	if len(config)%2 != 0 {
+	if len(rawConfig)%2 != 0 {
 		return errors.New("参数不匹配")
 	}
+	// config := ini.Empty()
+	config, _ := ini.Load(defaultConfig)
 
-	file := ini.Empty()
+	ini.PrettyFormat = false
+	ini.PrettyEqual = true
 
-	section, err := file.NewSection(DefaultSection)
+	section, err := config.NewSection(DefaultSection)
 	if err != nil {
 		return err
 	}
-	for i := 0; i < len(config); {
-		_, err = section.NewKey(config[i], config[i+1])
+	for i := 0; i < len(rawConfig); {
+		_, err = section.NewKey(rawConfig[i], rawConfig[i+1])
 		if err != nil {
 			return err
 		}
 		i += 2
 	}
-	err = file.SaveTo(filename)
+	err = config.SaveTo(filename)
 
 	return err
 }

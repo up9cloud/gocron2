@@ -72,8 +72,8 @@ type Task struct {
 }
 
 type Tags struct {
-	TagName string  `json:"tag_name" xorm:"tag_name"`
-	TagNum  int  `json:"tag_num" xorm:"tag_num"`
+	TagName string `json:"tag_name" xorm:"tag_name"`
+	TagNum  int    `json:"tag_num" xorm:"tag_num"`
 }
 
 func taskHostTableName() []string {

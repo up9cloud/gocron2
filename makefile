@@ -67,7 +67,8 @@ statik:
 	go generate ./...
 
 .PHONY: lint
-	golangci-lint run
+lint:
+	go fmt ./...
 
 .PHONY: clean
 clean:

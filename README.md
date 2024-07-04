@@ -68,7 +68,7 @@
 
 ### 源码安装
 
-- 安装Go 1.12+
+- 安装Go 1.16+
 - `go get -d github.com/up9cloud/gocron2`
 - `export GO111MODULE=on`
 - 编译 `make`
@@ -105,7 +105,7 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 
 ## 开发
 
-- 安装 Go1.12+, Node.js (Npm), Docker
+- 安装 Go1.16+, Node.js (Npm), Docker
 - 启动 gocron2, gocron2-node `docker compose up`
 - 启动前端, `make run-vue`
   - install 的時候，主机名填入 `db`

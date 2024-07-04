@@ -7,11 +7,11 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/ouqiang/goutil"
+	log "github.com/sirupsen/logrus"
 	"github.com/up9cloud/gocron2/internal/modules/rpc/auth"
 	"github.com/up9cloud/gocron2/internal/modules/rpc/server"
 	"github.com/up9cloud/gocron2/internal/modules/utils"
-	"github.com/ouqiang/goutil"
-	log "github.com/sirupsen/logrus"
 )
 
 var (

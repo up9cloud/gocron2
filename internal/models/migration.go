@@ -256,7 +256,7 @@ func (migration *Migration) upgradeFor155(session *xorm.Session) error {
 	if err != nil {
 		return err
 	}
-	_, err = session.Exec("UPDATE ? SET is_admin = ?", TablePrefix + "user", 2)
+	_, err = session.Exec("UPDATE ? SET is_admin = ?", TablePrefix+"user", 2)
 	if err == nil {
 		logger.Info("已升级到v1.5.5\n")
 	}

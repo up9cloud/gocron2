@@ -81,6 +81,7 @@ func Remove(ctx *macaron.Context) string {
 
 	return json.Success("删除成功", nil)
 }
+
 // 删除N天前的日志
 func RemoveDay(ctx *macaron.Context) string {
 	day := ctx.ParamsInt(":id")

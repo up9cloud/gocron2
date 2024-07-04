@@ -45,9 +45,9 @@ func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	}
 	json := utils.JsonResponse{}
 	newErrs := make([]error, len(errs))
-    for i, e := range errs {
-        newErrs[i] = fmt.Errorf("表单验证失败-Fields: %s, Kind: %s, Error: %s", strings.Join(e.Fields(), ", "), e.Kind(), e.Error())
-    }
+	for i, e := range errs {
+		newErrs[i] = fmt.Errorf("表单验证失败-Fields: %s, Kind: %s, Error: %s", strings.Join(e.Fields(), ", "), e.Kind(), e.Error())
+	}
 	content := json.CommonFailure("表单验证失败, 请检测输入", newErrs...)
 	ctx.Write([]byte(content))
 }
@@ -117,26 +117,13 @@ func writeConfig(form InstallForm) error {
 		"db.password", form.DbPassword,
 		"db.database", form.DbName,
 		"db.prefix", form.DbTablePrefix,
-		"db.charset", "utf8",
 		"db.sslmode", form.DbSslmode,
 		"db.ssl_ca_file", form.DbSslCaFile,
 		"db.ssl_cert_file", form.DbSslCertFile,
 		"db.ssl_key_file", form.DbSslKeyFile,
 		"db.ssl_server_name", form.DbSslServerName,
-		"db.max.idle.conns", "5",
-		"db.max.open.conns", "100",
-		"allow_ips", "",
-		"app.name", "定时任务管理系统", // 应用名称
-		"api.key", "",
-		"api.secret", "",
-		"enable_tls", "false",
-		"concurrency.queue", "500",
 		"auth_secret", utils.RandAuthToken(),
-		"ca_file", "",
-		"cert_file", "",
-		"key_file", "",
 	}
-
 	return setting.Write(dbConfig, app.AppConfig)
 }
 

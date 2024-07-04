@@ -11,6 +11,7 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/toolbox"
+	"github.com/rakyll/statik/fs"
 	"github.com/up9cloud/gocron2/internal/modules/app"
 	"github.com/up9cloud/gocron2/internal/modules/logger"
 	"github.com/up9cloud/gocron2/internal/modules/utils"
@@ -21,7 +22,6 @@ import (
 	"github.com/up9cloud/gocron2/internal/routers/task"
 	"github.com/up9cloud/gocron2/internal/routers/tasklog"
 	"github.com/up9cloud/gocron2/internal/routers/user"
-	"github.com/rakyll/statik/fs"
 	"gopkg.in/macaron.v1"
 
 	_ "github.com/up9cloud/gocron2/internal/statik"
@@ -111,7 +111,7 @@ func Register(m *macaron.Macaron) {
 		m.Post("/enable/:id", task.Enable)
 		m.Post("/disable/:id", task.Disable)
 		m.Get("/run/:id", task.Run)
-		m.Get("/tags",task.Tags)
+		m.Get("/tags", task.Tags)
 	})
 
 	// 主机
@@ -186,91 +186,76 @@ func RegisterMiddleware(m *macaron.Macaron) {
 		m.Use(toolbox.Toolboxer(m))
 	}
 	m.Use(macaron.Renderer())
-	m.Use(checkAppInstall)
-	m.Use(ipAuth)
-	m.Use(userAuth)
-	m.Use(urlAuth)
+	m.Use(appAuth)
 }
 
 // region 自定义中间件
 
-/** 检测应用是否已安装 **/
-func checkAppInstall(ctx *macaron.Context) {
-	if app.Installed {
-		return
-	}
-	if strings.HasPrefix(ctx.Req.URL.Path, "/install") || ctx.Req.URL.Path == "/" {
-		return
-	}
-	jsonResp := utils.JsonResponse{}
-
-	data := jsonResp.Failure(utils.AppNotInstall, "应用未安装")
-	ctx.Write([]byte(data))
-}
-
-// IP验证, 通过反向代理访问gocron2，需设置Header X-Real-IP才能获取到客户端真实IP
-func ipAuth(ctx *macaron.Context) {
+func appAuth(ctx *macaron.Context) {
+	// 检测应用是否已安装
 	if !app.Installed {
+		if strings.HasPrefix(ctx.Req.URL.Path, "/install") {
+			return
+		}
+		jsonResp := utils.JsonResponse{}
+		data := jsonResp.Failure(utils.AppNotInstall, "应用未安装")
+		ctx.Write([]byte(data))
 		return
 	}
-	allowIpsStr := app.Setting.AllowIps
-	if allowIpsStr == "" {
-		return
-	}
+	// localhost bypass
 	clientIp := ctx.RemoteAddr()
-	allowIps := strings.Split(allowIpsStr, ",")
-	if utils.InStringSlice(allowIps, clientIp) {
+	isBypass := false
+	if app.Setting.AllowLocalhostBypass {
+		if clientIp == "localhost" || clientIp == "127.0.0.1" || clientIp == "[::1]" {
+			isBypass = true
+		}
+	}
+	ctx.Data["is_bypass"] = isBypass
+	if isBypass {
+		ctx.Data["uid"] = int(0)
+		ctx.Data["username"] = ""
+		ctx.Data["is_admin"] = int(2)
 		return
 	}
-	logger.Warnf("非法IP访问-%s", clientIp)
-	jsonResp := utils.JsonResponse{}
-
-	data := jsonResp.Failure(utils.UnauthorizedError, "您无权限访问")
-
-	ctx.Write([]byte(data))
-}
-
-// 用户认证
-func userAuth(ctx *macaron.Context) {
-	if !app.Installed {
-		return
-	}
+	// 用户认证
 	user.RestoreToken(ctx)
-	if user.IsLogin(ctx) {
+	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
+	// 未登入允许访问的URL地址
+	allowPaths := []string{
+		"/user/login",
+		"/install/status",
+	}
+	if utils.InStringSlice(allowPaths, uri) {
 		return
 	}
-	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
 	if strings.HasPrefix(uri, "/v1") {
 		return
 	}
-	excludePaths := []string{"", "/user/login", "/install/status"}
-	for _, path := range excludePaths {
-		if uri == path {
+	if !user.IsLogin(ctx) {
+		jsonResp := utils.JsonResponse{}
+		data := jsonResp.Failure(utils.AuthError, "认证失败")
+		ctx.Write([]byte(data))
+		return
+	}
+	// IP验证, 通过反向代理访问gocron2，需设置Header X-Real-IP才能获取到客户端真实IP
+	if app.Setting.AllowIps != "" {
+		allowIps := strings.Split(app.Setting.AllowIps, ",")
+		if !utils.InStringSlice(allowIps, clientIp) {
+			logger.Warnf("非法IP访问-%s", clientIp)
+			jsonResp := utils.JsonResponse{}
+			data := jsonResp.Failure(utils.UnauthorizedError, "您无权限访问")
+			ctx.Write([]byte(data))
 			return
 		}
 	}
-	jsonResp := utils.JsonResponse{}
-	data := jsonResp.Failure(utils.AuthError, "认证失败")
-	ctx.Write([]byte(data))
-
-}
-
-// URL权限验证
-func urlAuth(ctx *macaron.Context) {
-	if !app.Installed {
+	if user.IsSuperAdmin(ctx) {
 		return
 	}
-	if user.IsAdmin(ctx) || user.IsSuperAdmin(ctx) {
-		return
-	}
-	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
-	if strings.HasPrefix(uri, "/v1") {
+	if user.IsAdmin(ctx) {
 		return
 	}
 	// 普通用户允许访问的URL地址
-	allowPaths := []string{
-		"",
-		"/install/status",
+	allowPaths = []string{
 		"/task",
 		"/task/log",
 		"/host",
@@ -278,14 +263,10 @@ func urlAuth(ctx *macaron.Context) {
 		"/user/login",
 		"/user/editMyPassword",
 	}
-	for _, path := range allowPaths {
-		if path == uri {
-			return
-		}
+	if utils.InStringSlice(allowPaths, uri) {
+		return
 	}
-
 	jsonResp := utils.JsonResponse{}
-
 	data := jsonResp.Failure(utils.UnauthorizedError, "您无权限访问")
 	ctx.Write([]byte(data))
 }

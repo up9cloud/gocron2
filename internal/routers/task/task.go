@@ -139,7 +139,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		childrenIds := strings.Split(form.DependencyTaskId, ",")
 		for _, childrenId := range childrenIds {
 			intChildrenId, _ := strconv.Atoi(childrenId)
-			childrenUsed := taskModel.ChildrenExist(id,intChildrenId)
+			childrenUsed := taskModel.ChildrenExist(id, intChildrenId)
 			if childrenUsed {
 				return json.CommonFailure("子任务不能被重复使用")
 			}
