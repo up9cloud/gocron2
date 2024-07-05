@@ -3,6 +3,7 @@
 ## v1.6.4
 
 - Dark mode for frondend
+- Localhost bypass
 
 ## v1.6.3
 
