@@ -7,7 +7,7 @@ build: gocron2 gocron2-node
 build-race: enable-race build
 
 .PHONY: gocron2
-gocron2:
+gocron2: statik
 	go build $(RACE) -o bin/gocron2 ./cmd/gocron2/main.go
 
 .PHONY: gocron2-node

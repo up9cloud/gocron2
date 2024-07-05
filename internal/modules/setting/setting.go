@@ -13,37 +13,38 @@ const DefaultSection = "default"
 
 type Setting struct {
 	Db struct {
-		Engine       string
-		Host         string
-		Port         int
-		User         string
-		Password     string
-		Database     string
-		Prefix       string
-		Charset      string
-		MaxIdleConns int
-		MaxOpenConns int
+		Engine       string `ini:"db.engine"`
+		Host         string `ini:"db.host"`
+		Port         int `ini:"db.port"`
+		User         string `ini:"db.user"`
+		Password     string `ini:"db.password"`
+		Database     string `ini:"db.database"`
+		Prefix       string `ini:"db.prefix"`
+		Charset      string `ini:"db.charset"`
 
-		Sslmode       string
-		SslCaFile     string
-		SslCertFile   string
-		SslKeyFile    string
-		SslServerName string
+		MaxIdleConns int `ini:"db.max.idle.conns"`
+		MaxOpenConns int `ini:"db.max.open.conns"`
+
+		Sslmode       string `ini:"db.sslmode"`
+		SslCaFile     string `ini:"db.ssl_ca_file"`
+		SslCertFile   string `ini:"db.ssl_cert_file"`
+		SslKeyFile    string `ini:"db.ssl_key_file"`
+		SslServerName string `ini:"db.ssl_server_name"`
 	}
-	AllowIps             string
-	AllowLocalhostBypass bool
-	AppName              string
-	ApiKey               string
-	ApiSecret            string
-	ApiSignEnable        bool
+	AllowIps             string `ini:"allow_ips"`
+	AllowLocalhostBypass bool `ini:"allow_localhost_bypass"`
+	AppName              string `ini:"app.name"`
+	ApiKey               string `ini:"api.key"`
+	ApiSecret            string `ini:"api.secret"`
+	ApiSignEnable        bool `ini:"api.sign.enable"`
 
-	EnableTLS bool
-	CAFile    string
-	CertFile  string
-	KeyFile   string
+	EnableTLS bool `ini:"enable_tls"`
+	CAFile    string `ini:"ca_file"`
+	CertFile  string `ini:"cert_file"`
+	KeyFile   string `ini:"key_file"`
 
-	ConcurrencyQueue int
-	AuthSecret       string
+	ConcurrencyQueue int `ini:"concurrency.queue"`
+	AuthSecret       string `ini:"auth_secret"`
 }
 
 // 读取配置
@@ -52,44 +53,15 @@ func Read(filename string) (*Setting, error) {
 	if err != nil {
 		return nil, err
 	}
-	section := config.Section(DefaultSection)
-
-	var s Setting
-
-	s.Db.Engine = section.Key("db.engine").MustString("mysql")
-	s.Db.Host = section.Key("db.host").MustString("127.0.0.1")
-	s.Db.Port = section.Key("db.port").MustInt(3306)
-	s.Db.User = section.Key("db.user").MustString("")
-	s.Db.Password = section.Key("db.password").MustString("")
-	s.Db.Database = section.Key("db.database").MustString("gocron2")
-	s.Db.Prefix = section.Key("db.prefix").MustString("")
-	s.Db.Charset = section.Key("db.charset").MustString("utf8")
-	s.Db.MaxIdleConns = section.Key("db.max.idle.conns").MustInt(30)
-	s.Db.MaxOpenConns = section.Key("db.max.open.conns").MustInt(100)
-
-	s.Db.Sslmode = section.Key("db.sslmode").MustString("")
-	s.Db.SslCaFile = section.Key("db.ssl_ca_file").MustString("")
-	s.Db.SslCertFile = section.Key("db.ssl_cert_file").MustString("")
-	s.Db.SslKeyFile = section.Key("db.ssl_key_file").MustString("")
-	s.Db.SslServerName = section.Key("db.ssl_server_name").MustString("")
-
-	s.AllowIps = section.Key("allow_ips").MustString("")
-	s.AllowLocalhostBypass = section.Key("allow_localhost_bypass").MustBool(false)
-	s.AppName = section.Key("app.name").MustString("定时任务管理系统")
-	s.ApiKey = section.Key("api.key").MustString("")
-	s.ApiSecret = section.Key("api.secret").MustString("")
-	s.ApiSignEnable = section.Key("api.sign.enable").MustBool(true)
-	s.ConcurrencyQueue = section.Key("concurrency.queue").MustInt(500)
-	s.AuthSecret = section.Key("auth_secret").MustString("")
-	if s.AuthSecret == "" {
-		s.AuthSecret = utils.RandAuthToken()
+	s := new(Setting)
+	err = config.Section(DefaultSection).MapTo(&s.Db)
+	if err != nil {
+		return nil, err
 	}
-
-	s.EnableTLS = section.Key("enable_tls").MustBool(false)
-	s.CAFile = section.Key("ca_file").MustString("")
-	s.CertFile = section.Key("cert_file").MustString("")
-	s.KeyFile = section.Key("key_file").MustString("")
-
+	err = config.Section(DefaultSection).MapTo(s)
+	if err != nil {
+		return nil, err
+	}
 	if s.EnableTLS {
 		if !utils.FileExist(s.CAFile) {
 			logger.Fatalf("failed to read ca cert file: %s", s.CAFile)
@@ -103,8 +75,11 @@ func Read(filename string) (*Setting, error) {
 			logger.Fatalf("failed to read client key file: %s", s.KeyFile)
 		}
 	}
-
-	return &s, nil
+	if s.AuthSecret == "" {
+		s.AuthSecret = utils.RandAuthToken()
+	}
+	logger.Infof("config load: %#v\n", s)
+	return s, nil
 }
 
 // 写入配置
