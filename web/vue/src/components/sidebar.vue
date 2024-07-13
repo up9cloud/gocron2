@@ -15,9 +15,6 @@
 <script>
 import { routes } from '../router/index.js'
 export default {
-  data () {
-    return {}
-  },
   computed: {
     currentLevel2Route() {
       return this.$route.path.split('/').splice(0, 3).join('/')

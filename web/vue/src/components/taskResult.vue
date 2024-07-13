@@ -9,11 +9,8 @@ const defaultValue = {
     text: '-',
     effect: 'plain',
 }
-function parse(row) {
-    if (row.id === 0) {
-        return defaultValue
-    }
-    switch (row.status) {
+function parse(status) {
+    switch (status) {
         case 0: return {
             type: 'danger',
             text: '失败',
@@ -40,29 +37,21 @@ function parse(row) {
 export default {
   props: {
     modelValue: {
-      type: Object,
-      default: () => ({}),
+      type: Number,
+      default: () => -1,
     },
   },
-  data() {
-    return defaultValue
-  },
-  mounted() {
-    this.parse()
-  },
-  updated() {
-    this.parse()
-  },
-  methods: {
-    parse() {
-        const o = parse(this.modelValue)
-        this.type = o.type
-        this.text = o.text
-        if (o.effect) {
-            this.effect = o.effect
-        }
+  computed: {
+    type() {
+      return parse(this.modelValue).type
+    },
+    text() {
+      return parse(this.modelValue).text
+    },
+    effect() {
+      return parse(this.modelValue).effect
     }
-  }
+  },
 }
 </script>
 <style scoped>

@@ -44,11 +44,9 @@
 
 <script>
 import { useDark, useToggle } from '@vueuse/core'
-
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 export default {
-  name: 'app-nav-menu',
   data () {
     return {
       logo: '🅖⚆🅒🅡🅞🅝②',

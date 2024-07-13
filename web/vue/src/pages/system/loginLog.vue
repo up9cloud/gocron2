@@ -28,7 +28,8 @@ import appPage from '../../layout/page.vue'
         background
         layout="prev, pager, next, sizes, total"
         :total="logTotal"
-        :page-size="20"
+        :current-page="searchParams.page"
+        :page-size="searchParams.page_size"
         @size-change="changePageSize"
         @current-change="changePage"
         @prev-click="changePage"
@@ -64,6 +65,7 @@ export default {
       this.search()
     },
     search () {
+      this.logs = []
       systemService.loginLogList(this.searchParams, (data) => {
         this.logs = data.data
         this.logTotal = data.total

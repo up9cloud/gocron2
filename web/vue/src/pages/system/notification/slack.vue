@@ -1,5 +1,6 @@
 <script setup>
 import appPage from '../../../layout/page.vue'
+import notificationTab from './tab.vue'
 </script>
 <template>
   <appPage>
@@ -42,7 +43,6 @@ import appPage from '../../../layout/page.vue'
 </template>
 
 <script>
-import notificationTab from './tab.vue'
 import notificationService from '../../../api/notification'
 export default {
   data () {
@@ -64,7 +64,6 @@ export default {
       channel: ''
     }
   },
-  components: {notificationTab},
   created () {
     this.init()
   },

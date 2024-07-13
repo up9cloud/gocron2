@@ -62,7 +62,8 @@ import appPage from '../../layout/page.vue'
         background
         layout="prev, pager, next, sizes, total"
         :total="hostTotal"
-        :page-size="20"
+        :current-page="searchParams.page"
+        :page-size="searchParams.page_size"
         @size-change="changePageSize"
         @current-change="changePage"
         @prev-click="changePage"
@@ -102,6 +103,7 @@ export default {
       this.search()
     },
     search (callback = null) {
+      this.hosts = []
       hostService.list(this.searchParams, (data) => {
         this.hosts = data.data
         this.hostTotal = data.total

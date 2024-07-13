@@ -189,7 +189,8 @@ import appPage from '../../layout/page.vue'
         background
         layout="prev, pager, next, sizes, total"
         :total="taskTotal"
-        :page-size="20"
+        :current-page="searchParams.page"
+        :page-size="searchParams.page_size"
         @size-change="changePageSize"
         @current-change="changePage"
         @prev-click="changePage"
@@ -305,6 +306,8 @@ export default {
       this.search()
     },
     search (callback = null) {
+      this.tasks = []
+      this.hosts = []
       taskService.list(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
         this.taskTotal = tasks.total

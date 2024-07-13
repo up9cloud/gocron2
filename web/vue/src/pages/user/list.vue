@@ -57,7 +57,8 @@ import appPage from '../../layout/page.vue'
         background
         layout="prev, pager, next, sizes, total"
         :total="userTotal"
-        :page-size="20"
+        :current-page="searchParams.page"
+        :page-size="searchParams.page_size"
         @size-change="changePageSize"
         @current-change="changePage"
         @prev-click="changePage"
@@ -110,6 +111,7 @@ export default {
       this.search()
     },
     search (callback = null) {
+      this.users = []
       userService.list(this.searchParams, (data) => {
         this.users = data.data
         this.userTotal = data.total

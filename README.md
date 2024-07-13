@@ -109,9 +109,16 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 - 启动 gocron2, gocron2-node `docker compose up`
 - 启动前端, `make run-vue`
   - install 的時候，主机名填入 `db`
-  - API请求預設会转发给 gocron2, 若要代理到遠端伺服器, 需在 `web/vue/.secret.config.js` 檔案加參數, 詳閱 `web/vue/vite.config.js`
+  - API请求預設会转发给 gocron2, 若要代理到遠端伺服器, 需新增 `web/vue/.secret.config.js` 檔案加參數, 詳閱 `web/vue/vite.config.js`
 
 `其他指令請詳查 ./makefile`
+
+## 發布
+
+- edit CHANGELOG.md
+- git tag vx.x.x
+- git push && git push --tags
+- wait for github action
 
 ## TODO
 

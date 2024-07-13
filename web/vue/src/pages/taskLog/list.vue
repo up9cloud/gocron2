@@ -53,7 +53,7 @@ import dialogLogResult from '../../components/dialog/logResult.vue'
         <el-button type="info" @click="refresh">刷新</el-button>
       </el-col>
     </el-row>
-    <el-table :data="logs" border row-key="id">
+    <el-table :data="logs" border lazy>
       <el-table-column type="expand">
         <template #default="scope">
           <el-descriptions border>
@@ -93,11 +93,9 @@ import dialogLogResult from '../../components/dialog/logResult.vue'
         width="100">
       </el-table-column>
       <el-table-column
+        prop="hostname"
         label="任务节点"
         width="150">
-        <template #default="scope">
-          <div>{{scope.row.hostname}}</div>
-        </template>
       </el-table-column>
       <el-table-column
         label="执行时长"
@@ -114,7 +112,7 @@ import dialogLogResult from '../../components/dialog/logResult.vue'
         align="center"
         >
         <template #default="scope">
-          <taskResult v-model="scope.row"></taskResult>
+          <taskResult v-model="scope.row.status"></taskResult>
         </template>
       </el-table-column>
       <el-table-column
@@ -152,7 +150,8 @@ import dialogLogResult from '../../components/dialog/logResult.vue'
         background
         layout="prev, pager, next, sizes, total"
         :total="logTotal"
-        :page-size="20"
+        :current-page="searchParams.page"
+        :page-size="searchParams.page_size"
         @size-change="changePageSize"
         @current-change="changePage"
         @prev-click="changePage"
@@ -219,7 +218,24 @@ export default {
     if (this.$route.query.task_id) {
       this.searchParams.task_id = this.$route.query.task_id
     }
+    if (this.$route.query.page) {
+      this.searchParams.page = parseInt(this.$route.query.page)
+    }
     this.search()
+  },
+  watch: {
+    searchParams: {
+      handler(newV, oldV) {
+        this.$router.push({
+          path: this.$route.path,
+          query: {
+            ...this.$route.query,
+            page: newV.page,
+          }
+        })
+      },
+      deep: true
+    }
   },
   methods: {
     formatProtocol (row, col) {
@@ -237,10 +253,10 @@ export default {
       this.search()
     },
     search (callback = null) {
+      this.logs = []
       taskLogService.list(this.searchParams, (data) => {
         this.logs = data.data
         this.logTotal = data.total
-
         if (callback) {
           callback()
         }

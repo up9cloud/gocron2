@@ -88,7 +88,7 @@ import taskResult from '../../components/taskResult.vue'
       </el-table-column>
       <el-table-column label="上次结果" width="80">
         <template #default="scope">
-          <taskResult v-model="scope.row.last_run_info"></taskResult>
+          <taskResult v-model="scope.row.last_run_info.status"></taskResult>
         </template>
       </el-table-column>
       <el-table-column
@@ -98,7 +98,7 @@ import taskResult from '../../components/taskResult.vue'
             v-if="scope.row.level === 1"
             v-model="scope.row.status"
             :active-value="1"
-            :inactive-vlaue="0"
+            :inactive-value="0"
             @change="changeStatus(scope.row)">
           </el-switch>
         </template>
@@ -109,7 +109,7 @@ import taskResult from '../../components/taskResult.vue'
             v-if="scope.row.level === 1"
             v-model="scope.row.status"
             :active-value="1"
-            :inactive-vlaue="0"
+            :inactive-value="0"
             :disabled="true">
           </el-switch>
         </template>
@@ -128,6 +128,19 @@ import taskResult from '../../components/taskResult.vue'
         </template>
       </el-table-column>
     </el-table>
+    <el-row type="flex" justify="end">
+      <el-pagination
+        background
+        layout="prev, pager, next, sizes, total"
+        :total="taskTotal"
+        :current-page="searchParams.page"
+        :page-size="searchParams.page_size"
+        @size-change="changePageSize"
+        @current-change="changePage"
+        @prev-click="changePage"
+        @next-click="changePage">
+      </el-pagination>
+    </el-row>
   </appPage>
 </template>
 

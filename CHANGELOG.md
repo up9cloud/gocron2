@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.6.5
+
+- fix page stock
+- memorize page# when refresh
+
 ## v1.6.4
 
 - Dark mode for frondend
