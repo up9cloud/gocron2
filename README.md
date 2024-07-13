@@ -35,8 +35,11 @@
 ## 截图
 
 ![列表](./assets/screenshot/task.png)
-![日志](./assets/screenshot/tesk-log.png)
+
+![日志](./assets/screenshot/task-log.png)
+
 ![节点](./assets/screenshot/node.png)
+
 ![webhook](./assets/screenshot/webhook.png)
 
 ## 流程图
