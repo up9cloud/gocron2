@@ -34,14 +34,14 @@
 
 ## 截图
 
-![列表](https://user-images.githubusercontent.com/10205742/184531121-f5faa1a9-4d13-4132-a96d-848375765cda.jpg)
-![日志](https://user-images.githubusercontent.com/10205742/184531126-0f159cda-8774-4185-9132-194e66cd5d3c.jpg)
-![节点](https://user-images.githubusercontent.com/10205742/184531128-7a9a07a9-cac2-4dea-a37a-5cb57479a528.jpg)
-![webhook](https://user-images.githubusercontent.com/10205742/184531159-582fd407-bed1-4ed4-a469-e8b9d5af67cb.jpg)
+![列表](./assets/screenshot/task.png)
+![日志](./assets/screenshot/tesk-log.png)
+![节点](./assets/screenshot/node.png)
+![webhook](./assets/screenshot/webhook.png)
 
 ## 流程图
 
-![流程图](https://raw.githubusercontent.com/up9cloud/gocron2/master/assets/screenshot/scheduler.png)
+![流程图](./assets/screenshot/scheduler.png)
 
 ## 支持平台
 
