@@ -142,6 +142,8 @@ func getDbEngineDSN(setting *setting.Setting) (string, error) {
 			setting.Db.Host,
 			setting.Db.Port,
 			setting.Db.Database)
+	case "sqlite3":
+		dsn = fmt.Sprintf("%s/%s", app.ConfDir, setting.Db.Database)
 	}
 
 	return dsn, nil

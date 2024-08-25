@@ -44,9 +44,9 @@ func (j *JsonResponse) Failure(code int, message string) string {
 	return j.response(code, message, nil)
 }
 
-func (j *JsonResponse) CommonFailure(message string, err ...error) string {
-	if len(err) > 0 {
-		logger.Warn(err)
+func (j *JsonResponse) CommonFailure(message string, errs ...error) string {
+	for _, e := range errs {
+		logger.Warn(e)
 	}
 	return j.Failure(ResponseFailure, message)
 }

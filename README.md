@@ -119,15 +119,18 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 ## 發布
 
 - edit CHANGELOG.md
+- edit `AppVersion` in main.go
+- git commit
 - git tag vx.x.x
 - git push && git push --tags
 - wait for github action
 
 ## TODO
 
-- [ ] support sqlite3: `https://github.com/ouqiang/gocron/pull/375`
+- [ ] Move readme commands intro to cli
 - [ ] merge `https://github.com/peng49/gocron`
 - [ ] Fix or remove super admin logic
+- [x] Support sqlite3
 - [x] 版本升级
 - [x] 批量开启、关闭、删除任务
 - [x] 调度器与任务节点通信支持https
@@ -146,5 +149,6 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 
 ## Credits
 
+- `https://github.com/ouqiang/gocron/pull/375`
 - `https://github.com/gaowei-space/gocron`
 - `https://github.com/ghostong/gocron.git`

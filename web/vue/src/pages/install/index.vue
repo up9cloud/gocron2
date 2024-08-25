@@ -7,7 +7,7 @@
     >
       <h3>数据库配置</h3>
       <el-form-item label="数据库选择" prop="db_type" label-width="auto">
-        <el-select v-model.trim="form.db_type" @change="update_port">
+        <el-select v-model.trim="form.db_type" @change="db_type_changed">
           <el-option
             v-for="item in dbList"
             :key="item.value"
@@ -16,6 +16,9 @@
           >
           </el-option>
         </el-select>
+        <el-tooltip content="使用 sqlite3 时需要在数据库名称中配置文件路径，主机名/端口/用户名/密码随意" placement="top">
+          <el-icon><QuestionFilled /></el-icon>
+        </el-tooltip>
       </el-form-item>
       <el-row>
         <el-col :span="12">
@@ -161,7 +164,7 @@ export default {
         admin_username: 'admin',
         admin_password: '',
         confirm_admin_password: '',
-        admin_email: ''
+        admin_email: 'admin@' + (window.location.hostname === 'localhost' ? 'mail.' + window.location.hostname : window.location.hostname)
       },
       formRules: {
         db_type: [{ required: true, message: '请选择数据库', trigger: 'blur' }],
@@ -214,20 +217,31 @@ export default {
         {
           value: 'postgres',
           label: 'PostgreSql'
+        },
+        {
+          value: 'sqlite3',
+          label: 'SQLite 3'
         }
       ],
       default_ports: {
         mysql: 3306,
-        postgres: 5432
+        postgres: 5432,
+        sqlite3: 1,
       }
     }
   },
   methods: {
-    update_port (dbType) {
-      console.log(dbType)
-      console.log(this.default_ports[dbType])
+    db_type_changed (dbType) {
+      if (dbType === 'sqlite3') {
+        if (!this.form['db_name'].endsWith('.db')) {
+          this.form['db_name'] += '.db'
+        }
+      } else {
+        if (this.form['db_name'].endsWith('.db')) {
+          this.form['db_name'] = this.form['db_name'].slice(0, -3)
+        }
+      }
       this.form['db_port'] = this.default_ports[dbType]
-      console.log(this.form['db_port'])
     },
     submit () {
       this.$refs['form'].validate((valid) => {

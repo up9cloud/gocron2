@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	_ "github.com/mattn/go-sqlite3"
 	macaron "gopkg.in/macaron.v1"
 
 	"github.com/go-macaron/binding"
@@ -21,7 +22,7 @@ import (
 // 系统安装
 
 type InstallForm struct {
-	DbType               string `binding:"In(mysql,postgres)"`
+	DbType               string `binding:"In(mysql,postgres,sqlite3)"`
 	DbHost               string `binding:"Required;MaxSize(50)"`
 	DbPort               int    `binding:"Required;Range(1,65535)"`
 	DbUsername           string `binding:"Required;MaxSize(50)"`
@@ -46,7 +47,7 @@ func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	json := utils.JsonResponse{}
 	newErrs := make([]error, len(errs))
 	for i, e := range errs {
-		newErrs[i] = fmt.Errorf("表单验证失败-Fields: %s, Kind: %s, Error: %s", strings.Join(e.Fields(), ", "), e.Kind(), e.Error())
+		newErrs[i] = fmt.Errorf("表单验证失败, 请检测输入: {Fields: %s; Kind: %s; Error: %s}", strings.Join(e.Fields(), ", "), e.Kind(), e.Error())
 	}
 	content := json.CommonFailure("表单验证失败, 请检测输入", newErrs...)
 	ctx.Write([]byte(content))

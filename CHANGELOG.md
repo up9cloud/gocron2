@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.6.6
+
+- Support sqlite3
+
 ## v1.6.5
 
 - fix page stock
