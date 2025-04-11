@@ -25,6 +25,7 @@ services:
       - bash
       - -c
       - |
+        ls -al ./bin/
         ./bin/gocron2 web -e dev &
         ./bin/gocron2-node -allow-root &
         wait -n
