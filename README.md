@@ -1,3 +1,13 @@
+###
+
+2025-04-10 註
+
+本專案比較舊了。
+
+強烈建議改為使用 [青龙](https://github.com/whyour/qinglong) 或是 [n8n](https://github.com/n8n-io/n8n)
+
+###
+
 # gocron2
 
 [![Downloads](https://img.shields.io/github/downloads/up9cloud/gocron2/total.svg)](https://github.com/up9cloud/gocron2/releases)
