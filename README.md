@@ -106,7 +106,7 @@ See: `https://github.com/docker-sstc/docker-gocron2`
   - -h 查看帮助
   - -v 查看版本
 
-## 开发
+## 开发安装
 
 - 安装 Go1.16+, Node.js (Npm), Docker
 - 启动 gocron2, gocron2-node `docker compose up`
@@ -130,7 +130,7 @@ See: `https://github.com/docker-sstc/docker-gocron2`
 - [ ] Move readme commands intro to cli
 - [ ] merge `https://github.com/peng49/gocron`
 - [ ] Fix or remove super admin logic
-- [x] Support sqlite3 (Only docker version support sqlite3)
+- [x] Support sqlite3 (Only for 开发安装)
 - [x] 版本升级
 - [x] 批量开启、关闭、删除任务
 - [x] 调度器与任务节点通信支持https
